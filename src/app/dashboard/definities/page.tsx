@@ -1,6 +1,7 @@
 'use client';
 
 import { PageHeader } from '@/components/layout/page-header';
+import { PAGE_HELP } from '@/lib/descriptions';
 import { Card } from '@/components/ui/card';
 import { PAGE_COLORS, DMI_COLORS } from '@/lib/colors';
 
@@ -102,6 +103,7 @@ export default function DefinitiesPage() {
     <div className="max-w-5xl mx-auto">
       <PageHeader
         title="Definities"
+        tooltip={PAGE_HELP.definities}
         color={DMI_COLORS.green}
         description="Verklarende woordenlijst van begrippen in het VESDI-dashboard."
       />

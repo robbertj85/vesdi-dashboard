@@ -2,6 +2,7 @@
 
 import { useMemo } from 'react';
 import { PageHeader } from '@/components/layout/page-header';
+import { SectionTitle } from '@/components/ui/info-tip';
 import { DataSourceFooter } from '@/components/layout/data-source-footer';
 import { FilterBar } from '@/components/layout/filter-bar';
 import { KPICard } from '@/components/layout/kpi-card';
@@ -17,7 +18,7 @@ import {
   emissiezoneDistribution,
 } from '@/lib/aggregate';
 import { formatLargeNumber, formatPct } from '@/lib/format';
-import { PAGE_DESCRIPTIONS, KPI_TOOLTIPS, CHART_TOOLTIPS } from '@/lib/descriptions';
+import { PAGE_DESCRIPTIONS, KPI_TOOLTIPS, CHART_TOOLTIPS, PAGE_HELP, SECTION_TOOLTIPS } from '@/lib/descriptions';
 import { Card } from '@/components/ui/card';
 import {
   BarChart,
@@ -47,12 +48,12 @@ export default function InternationaleZendingenPage() {
     [zendingen]
   );
 
-  const countryColors = [...PAGE_COLORS.internationaleZendingen.chartColors];
 
   return (
     <div className="max-w-7xl mx-auto">
       <PageHeader
         title="Internationale zendingen"
+        tooltip={PAGE_HELP.internationaleZendingen}
         color={PAGE_COLORS.internationaleZendingen.bg}
         description={PAGE_DESCRIPTIONS.internationaleZendingen}
       />
@@ -78,9 +79,7 @@ export default function InternationaleZendingenPage() {
 
           {/* Country bar chart */}
           <Card className="p-4">
-            <h3 className="text-sm font-semibold text-dmi-text mb-3">
-              Import/export per handelsland
-            </h3>
+            <SectionTitle title="Import/export per handelsland" tooltip={SECTION_TOOLTIPS.importExportLand} className="mb-3" />
             <ResponsiveContainer width="100%" height={Math.max(200, perCountry.length * 28 + 40)}>
               <BarChart data={perCountry} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" stroke="#e0ddd6" horizontal={false} />
@@ -88,8 +87,8 @@ export default function InternationaleZendingenPage() {
                 <YAxis type="category" dataKey="country" width={100} tick={{ fontSize: 11 }} />
                 <Tooltip formatter={(v) => [(v as number).toLocaleString('nl-NL')]} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Bar dataKey="geladenAantal" name="Geladen" fill={countryColors[0]} radius={[0, 4, 4, 0]} />
-                <Bar dataKey="gelostAantal" name="Gelost" fill={countryColors[1]} radius={[0, 4, 4, 0]} />
+                <Bar dataKey="geladenAantal" name="Geladen" fill={DMI_COLORS.primary} radius={[0, 4, 4, 0]} />
+                <Bar dataKey="gelostAantal" name="Gelost" fill={DMI_COLORS.green} radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </Card>

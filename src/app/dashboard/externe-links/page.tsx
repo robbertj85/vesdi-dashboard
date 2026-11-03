@@ -3,7 +3,7 @@
 import { PageHeader } from '@/components/layout/page-header';
 import { Card } from '@/components/ui/card';
 import { PAGE_COLORS } from '@/lib/colors';
-import { PAGE_DESCRIPTIONS } from '@/lib/descriptions';
+import { PAGE_DESCRIPTIONS, PAGE_HELP } from '@/lib/descriptions';
 import { Building2, BarChart3, FolderOpen, Package, Target, ExternalLink } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -45,6 +45,7 @@ export default function ExterneLinkPage() {
     <div className="max-w-5xl mx-auto">
       <PageHeader
         title="Externe links"
+        tooltip={PAGE_HELP.externeLinks}
         color={PAGE_COLORS.externeLinks.accent}
         description={PAGE_DESCRIPTIONS.externeLinks}
       />

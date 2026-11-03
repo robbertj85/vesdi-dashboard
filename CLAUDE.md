@@ -10,7 +10,8 @@ Municipal dashboard for visualizing CBS VESDI freight transport data (zendingen 
 - **Maps:** Leaflet + React-Leaflet 5
 - **Routing:** OpenRouteService (self-hosted at ors.transportbeat.nl, proxied via /api/ors)
 - **State:** Zustand 5 with IndexedDB persistence (no server-side database)
-- **Data parsing:** PapaParse (CSV), xlsx (Excel)
+- **Data parsing:** PapaParse (CSV), xlsx (Excel — SheetJS CDN build 0.20.3, the npm `xlsx` is unmaintained/vulnerable)
+- **Auth:** shared demo login via `src/proxy.ts` (Next 16 "proxy" = middleware) + HMAC-signed cookie (`src/lib/auth.ts`)
 
 ## Dev Commands
 ```bash
@@ -24,8 +25,12 @@ npx tsc --noEmit # Type-check without emitting
 ```
 src/
   app/                          # Next.js App Router pages
+    login/                      # Shared demo login page
+    demo/                       # Post-login: loads Utrecht demo data, then continues to ?next=
     api/
       ors/                      # ORS proxy API route (avoids CORS)
+      auth/login, auth/logout   # Session cookie set/clear
+      demo/, demo/[file]        # Manifest + files of the demo dataset (login required)
     dashboard/                  # 13 dashboard pages + layout (plus 6 ANPR pages)
       voorblad/                 # Cover page with hero image + DMI logo
       introductie/              # Introduction with CBS/VESDI background text
@@ -46,7 +51,8 @@ src/
     layout/    # Expandable sidebar, filter bar, KPI card, page header, sidebar context
     maps/      # Leaflet map components (choropleth, bubble, route)
     ui/        # shadcn/ui primitives
-    upload/    # File drop zone
+    upload/    # File drop zone, DemoCard
+    ui/info-tip.tsx  # InfoTip (?) + SectionTitle — use for every new section/heading
   hooks/       # Custom React hooks (filtered data, geojson)
   lib/
     types.ts         # TypeScript interfaces (ZendingRow, DeelritRow, etc.)
@@ -62,7 +68,9 @@ src/
     colors.ts        # DMI design system colors
     country-codes.ts # NUTS3 → country mapping
     idb-storage.ts   # IndexedDB storage adapter for Zustand
-    descriptions.ts  # Dutch tooltip/description texts
+    descriptions.ts  # Dutch tooltip texts: PAGE_DESCRIPTIONS, PAGE_HELP, KPI/CHART/SECTION_TOOLTIPS
+    auth.ts          # Credential check + session token sign/verify
+    demo-data.ts     # Demo dataset directory listing (DEMO_DATA_DIR)
 public/
   geo/         # GeoJSON + centroids: pc4, pc6 (464K), nuts3 (1.5K)
   images/      # DMI logos (SVG)
@@ -97,4 +105,22 @@ Zone columns are optional — the app handles missing zone data gracefully.
 ```
 NEXT_PUBLIC_ORS_API_KEY=    # ORS API key (X-API-Key header, for route map)
 NEXT_PUBLIC_ORS_BASE_URL=   # ORS base URL (default: https://ors.transportbeat.nl/ors)
+NEXT_PUBLIC_CARTO_API_KEY=  # Optional CARTO basemap key; without it maps fall back to muted OSM tiles
+DEMO_USERNAME=              # Shared login (required — app is unusable without it)
+DEMO_PASSWORD=
+AUTH_SECRET=                # Optional cookie signing key (derived from credentials if unset)
+DEMO_DATA_DIR=              # Optional; default ./demo-data/utrecht
 ```
+
+## Demo Data & Auth
+- Everything except `/login`, `/api/auth/*`, `/_next/*`, `/images/*` requires the session cookie (`src/proxy.ts`). `/api/demo*` re-check the cookie themselves.
+- `demo-data/` holds confidential CBS data: gitignored, built by `scripts/prepare-demo-data.sh` from the local `Utrecht/` folders. Never commit it; the GitHub repo is public.
+- IndexedDB values are chunked (`idb-storage.ts`): the full Utrecht state is ~114M chars, above Chrome's ~133 MB per-value limit.
+
+## Conventions
+- Some source files use CRLF line endings — preserve them when editing.
+- Tooltips: every page header gets `tooltip={PAGE_HELP.x}`; every section/chart/KPI/filter gets a (?) via `InfoTip`, `SectionTitle`, `titleTooltip` or `tooltip`.
+- Guided tour ("Rondleiding"): steps in `src/components/tour/tour-steps.ts`, overlay in `tour-provider.tsx` (mounted in the dashboard layout). Steps spotlight elements by `data-tour="…"` attributes — keep those when refactoring a page. Auto-starts once per browser on `/dashboard/voorblad` (localStorage `vesdi-tour-seen`).
+- Chart cards must not use `h-full` (stacked cards in one grid column overflow). Use the `bare` prop on DonutChart / StackedBarAbsolute / PC4BubbleMap when nesting inside another Card.
+- ANPR tables contain N1, N2, N3 *and* N23 (= N2+N3): use `dropOverlappingVehicles` in `anpr-aggregate.ts` when summing/stacking vehicle categories.
+- Euronorm values may be numbers after parsing: compare with `String(r.euronormKlasse) === '6'`. 2021/2022 deliveries name the column `EuronormKlasse` (normalized in `transform.ts`).

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { PageHeader } from '@/components/layout/page-header';
+import { SectionTitle } from '@/components/ui/info-tip';
 import { DataSourceFooter } from '@/components/layout/data-source-footer';
 import { FilterBar } from '@/components/layout/filter-bar';
 import { KPICard } from '@/components/layout/kpi-card';
@@ -17,7 +18,7 @@ import {
   voertuigcategorieDistribution,
 } from '@/lib/aggregate';
 import { formatLargeNumber, formatPct } from '@/lib/format';
-import { PAGE_DESCRIPTIONS, KPI_TOOLTIPS, CHART_TOOLTIPS } from '@/lib/descriptions';
+import { PAGE_DESCRIPTIONS, KPI_TOOLTIPS, CHART_TOOLTIPS, PAGE_HELP, SECTION_TOOLTIPS } from '@/lib/descriptions';
 import { getCountryFromNuts3 } from '@/lib/country-codes';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -105,15 +106,11 @@ export default function InternationaleDeelrittenPage() {
     : donutView === 'voertuig' ? voertuig
     : leeggewicht;
 
-  const donutTitle = donutView === 'maxGewicht' ? 'Max toegestaan gewicht'
-    : donutView === 'voertuig' ? 'Voertuigcategorie'
-    : donutView === 'leeggewicht' ? 'Leeggewicht'
-    : 'Brandstofsoort';
-
   return (
     <div className="max-w-7xl mx-auto">
       <PageHeader
         title="Internationale deelritten"
+        tooltip={PAGE_HELP.internationaleDeelritten}
         color={PAGE_COLORS.nationaleDeelritten.bg}
         description={PAGE_DESCRIPTIONS.internationaleDeelritten}
       />
@@ -153,9 +150,7 @@ export default function InternationaleDeelrittenPage() {
         {/* Center column */}
         <div className="space-y-4">
           <Card className="p-4">
-            <h3 className="text-sm font-semibold text-dmi-text mb-3">
-              Import/export per handelsland
-            </h3>
+            <SectionTitle title="Import/export per handelsland" tooltip={SECTION_TOOLTIPS.importExportLand} className="mb-3" />
             <ResponsiveContainer width="100%" height={Math.max(200, countryData.length * 28 + 40)}>
               <BarChart data={countryData} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" stroke="#e0ddd6" horizontal={false} />
@@ -174,9 +169,7 @@ export default function InternationaleDeelrittenPage() {
         <div className="space-y-4">
           <Card className="p-4">
             <div className="flex items-center gap-2 mb-3">
-              <h3 className="text-sm font-semibold text-dmi-text flex-1">
-                Deelritten per PC4 in de gemeente
-              </h3>
+              <SectionTitle title="Deelritten per PC4 in de gemeente" tooltip={SECTION_TOOLTIPS.pc4InGemeente} className="flex-1" />
               <Tabs value={mapView} onValueChange={(v) => setMapView(v as 'laden' | 'lossen')}>
                 <TabsList className="h-7">
                   <TabsTrigger value="laden" className="text-xs px-2 py-1">Laden</TabsTrigger>
@@ -185,6 +178,7 @@ export default function InternationaleDeelrittenPage() {
               </Tabs>
             </div>
             <PC4BubbleMap
+              bare
               title=""
               data={pc4MapData.slice(0, 30)}
               color={DMI_COLORS.primary}
@@ -194,9 +188,7 @@ export default function InternationaleDeelrittenPage() {
 
           <Card className="p-4">
             <div className="flex items-center gap-2 mb-3">
-              <h3 className="text-sm font-semibold text-dmi-text flex-1">
-                Voertuiginformatie
-              </h3>
+              <SectionTitle title="Voertuiginformatie" tooltip={SECTION_TOOLTIPS.voertuiginformatie} className="flex-1" />
               <Tabs value={donutView} onValueChange={(v) => setDonutView(v as typeof donutView)}>
                 <TabsList className="h-7">
                   <TabsTrigger value="maxGewicht" className="text-xs px-2 py-1">Max gewicht</TabsTrigger>
@@ -205,11 +197,7 @@ export default function InternationaleDeelrittenPage() {
                 </TabsList>
               </Tabs>
             </div>
-            <DonutChart
-              title={donutTitle}
-              data={donutData}
-              colors={[...PAGE_COLORS.nationaleDeelritten.chartColors]}
-            />
+            <DonutChart bare title="" data={donutData} />
           </Card>
         </div>
       </div>

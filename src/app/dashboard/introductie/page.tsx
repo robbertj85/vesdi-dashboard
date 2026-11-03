@@ -4,7 +4,9 @@ import { useVesdiStore } from '@/lib/store';
 import { PageHeader } from '@/components/layout/page-header';
 import { Card } from '@/components/ui/card';
 import { PAGE_COLORS, DMI_COLORS } from '@/lib/colors';
-import { PAGE_DESCRIPTIONS } from '@/lib/descriptions';
+import { PAGE_DESCRIPTIONS, PAGE_HELP, SECTION_TOOLTIPS } from '@/lib/descriptions';
+import { InfoTip, SectionTitle } from '@/components/ui/info-tip';
+import { useTour } from '@/components/tour/tour-provider';
 import { useHasAnprData } from '@/lib/anpr-selectors';
 import Link from 'next/link';
 import {
@@ -25,7 +27,9 @@ import {
   Users,
   Clock,
   FlaskConical,
+  GraduationCap,
 } from 'lucide-react';
+import { municipalityName } from '@/lib/format';
 
 const WVE_BUTTONS = [
   { href: '/dashboard/trends', label: 'Trends', icon: TrendingUp },
@@ -54,10 +58,13 @@ const SYSTEM_BUTTONS = [
   { href: '/dashboard/data-volledigheid', label: 'Data volledigheid', icon: CheckCircle },
 ];
 
-function NavSection({ title, color, items }: { title: string; color: string; items: { href: string; label: string; icon: React.ComponentType<{ className?: string }> }[] }) {
+function NavSection({ title, tooltip, color, items }: { title: string; tooltip: string; color: string; items: { href: string; label: string; icon: React.ComponentType<{ className?: string }> }[] }) {
   return (
     <div>
-      <p className="text-[10px] uppercase tracking-wider font-semibold text-dmi-text/40 mb-2">{title}</p>
+      <div className="flex items-center gap-1 mb-2">
+        <p className="text-[10px] uppercase tracking-wider font-semibold text-dmi-text/40">{title}</p>
+        <InfoTip text={tooltip} />
+      </div>
       {items.map((btn) => {
         const Icon = btn.icon;
         return (
@@ -81,12 +88,14 @@ export default function IntroductiePage() {
   const years = useVesdiStore((s) => s.years);
   const anprYear = useVesdiStore((s) => s.anprYear);
   const hasAnpr = useHasAnprData();
+  const tour = useTour();
   const sortedYears = [...years].sort((a, b) => a - b);
 
   return (
     <div className="max-w-6xl mx-auto">
       <PageHeader
         title="Gemeentelijk VESDI-dashboard"
+        tooltip={PAGE_HELP.introductie}
         color={PAGE_COLORS.introductie.accent}
         description={PAGE_DESCRIPTIONS.introductie}
       />
@@ -94,19 +103,7 @@ export default function IntroductiePage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main text */}
         <div className="lg:col-span-2 space-y-6">
-          <Card className="p-6">
-            <div className="flex items-center gap-3 mb-6">
-              <img
-                src="/images/dmi-logo.svg"
-                alt="DMI Ecosysteem"
-                className="h-10 w-auto"
-              />
-            </div>
-
-            <h2 className="text-xl font-bold text-dmi-text mb-4">
-              Gemeentelijk VESDI-dashboard
-            </h2>
-
+          <Card data-tour="intro-text" className="p-6">
             <div className="space-y-5 text-sm text-dmi-text/80 leading-relaxed">
               <p>
                 In 2021 startte het CBS, in opdracht van het Ministerie van I&W en in
@@ -116,9 +113,7 @@ export default function IntroductiePage() {
               </p>
 
               <div>
-                <h3 className="font-semibold text-dmi-text mb-1">
-                  VESDI zendingen en deelritten
-                </h3>
+                <SectionTitle title="VESDI zendingen en deelritten" tooltip={SECTION_TOOLTIPS.introVesdi} className="mb-1" />
                 <p>
                   VESDI verzamelt gegevens over goederenstromen in twee datasets. De eerste
                   is op zendingniveau, waarbij een zending het verplaatsen van goederen van
@@ -133,9 +128,7 @@ export default function IntroductiePage() {
               </div>
 
               <div>
-                <h3 className="font-semibold text-dmi-text mb-1">
-                  ANPR cameraregistraties
-                </h3>
+                <SectionTitle title="ANPR cameraregistraties" tooltip={SECTION_TOOLTIPS.introAnpr} className="mb-1" />
                 <p>
                   Naast de VESDI-data ondersteunt dit dashboard ook ANPR-data (Automatic
                   Number Plate Recognition). ANPR-camera&apos;s registreren kentekens van
@@ -149,9 +142,7 @@ export default function IntroductiePage() {
               </div>
 
               <div>
-                <h3 className="font-semibold text-dmi-text mb-1">
-                  Dataverzameling
-                </h3>
+                <SectionTitle title="Dataverzameling" tooltip={SECTION_TOOLTIPS.introDataverzameling} className="mb-1" />
                 <p>
                   De VESDI dataset over goederenvervoer over de weg is grotendeels gebaseerd
                   op een steekproef waarbij kentekens van voertuigen worden geselecteerd. Dit
@@ -170,13 +161,11 @@ export default function IntroductiePage() {
               </div>
 
               <div>
-                <h3 className="font-semibold text-dmi-text mb-1">
-                  Verslagperiode
-                </h3>
+                <SectionTitle title="Verslagperiode" tooltip={SECTION_TOOLTIPS.introVerslagperiode} className="mb-1" />
                 <p>
                   {sortedYears.length > 0 && (
                     <>
-                      Voor de Wegvervoersenquete is data van{' '}
+                      Voor de Wegvervoersenquête is data van{' '}
                       {sortedYears.join(', ')} gebruikt.
                     </>
                   )}
@@ -186,8 +175,8 @@ export default function IntroductiePage() {
                     bevatten alleen informatie over vervoersbewegingen waarvan de los- en/of
                     laadlocatie zich in de gemeente{' '}
                     <strong>
-                      {municipality?.name || 'Onbekend'} (gemeentecode{' '}
-                      {municipality?.code || '????'})
+                      {municipalityName(municipality?.name, 'Onbekend')} (gemeentecode{' '}
+                      {municipality?.code != null ? String(municipality.code).padStart(4, '0') : '????'})
                     </strong>{' '}
                     bevindt.</>
                   )}
@@ -195,8 +184,8 @@ export default function IntroductiePage() {
                     <> De bestanden bevatten informatie over vervoersbewegingen waarvan de
                     los- en/of laadlocatie zich in de gemeente{' '}
                     <strong>
-                      {municipality?.name || 'Onbekend'} (gemeentecode{' '}
-                      {municipality?.code || '????'})
+                      {municipalityName(municipality?.name, 'Onbekend')} (gemeentecode{' '}
+                      {municipality?.code != null ? String(municipality.code).padStart(4, '0') : '????'})
                     </strong>{' '}
                     bevindt.</>
                   )}
@@ -216,17 +205,34 @@ export default function IntroductiePage() {
 
         {/* Navigation buttons */}
         <div className="space-y-4">
-          <p className="text-sm font-semibold text-dmi-table-accent">
-            Dashboard pagina&apos;s
-          </p>
+          <button
+            type="button"
+            onClick={tour.start}
+            className="w-full text-left rounded-xl border-2 border-dmi-gold bg-dmi-gold/10 hover:bg-dmi-gold/20 transition-colors p-4 flex items-start gap-3"
+          >
+            <GraduationCap className="w-6 h-6 text-dmi-gold shrink-0 mt-0.5" />
+            <span>
+              <span className="block font-condensed font-bold text-dmi-primary">Start de rondleiding</span>
+              <span className="block text-xs text-dmi-text/60 mt-0.5">
+                Twee minuten langs de belangrijkste pagina&apos;s, met de Utrecht-data als voorbeeld.
+              </span>
+            </span>
+          </button>
 
-          <NavSection title="Wegvervoersenquete" color={DMI_COLORS.primary} items={WVE_BUTTONS} />
+          <div className="flex items-center gap-1">
+            <p className="text-sm font-semibold text-dmi-table-accent">
+              Dashboard pagina&apos;s
+            </p>
+            <InfoTip text={SECTION_TOOLTIPS.introNav} />
+          </div>
+
+          <NavSection title="Wegvervoersenquête" tooltip={SECTION_TOOLTIPS.navWegvervoer} color={DMI_COLORS.primary} items={WVE_BUTTONS} />
 
           {hasAnpr && (
-            <NavSection title="ANPR" color={DMI_COLORS.orange} items={ANPR_BUTTONS} />
+            <NavSection title="ANPR" tooltip={SECTION_TOOLTIPS.navAnpr} color={DMI_COLORS.orange} items={ANPR_BUTTONS} />
           )}
 
-          <NavSection title="Systeem" color={DMI_COLORS.purple} items={SYSTEM_BUTTONS} />
+          <NavSection title="Systeem" tooltip={SECTION_TOOLTIPS.navSysteem} color={DMI_COLORS.purple} items={SYSTEM_BUTTONS} />
         </div>
       </div>
     </div>

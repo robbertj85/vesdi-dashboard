@@ -6,7 +6,7 @@ import { DummyBanner } from '@/components/layout/dummy-banner';
 import { HorizontalBarChart } from '@/components/charts/horizontal-bar-chart';
 import { StackedBarAbsolute } from '@/components/charts/stacked-bar-absolute';
 import { PAGE_COLORS } from '@/lib/colors';
-import { PAGE_DESCRIPTIONS, CHART_TOOLTIPS } from '@/lib/descriptions';
+import { PAGE_DESCRIPTIONS, CHART_TOOLTIPS, PAGE_HELP } from '@/lib/descriptions';
 import { useAnprTable, useAnprLookup } from '@/lib/anpr-selectors';
 import {
   anprVisitsByCompanySize,
@@ -38,6 +38,7 @@ export default function AnprBezoekersPage() {
       <div className="max-w-7xl mx-auto space-y-4">
         <PageHeader
           title="ANPR Bezoekers"
+          tooltip={PAGE_HELP.anprBezoekers}
           color={PAGE_COLORS.anprBezoekers.bg}
           description={PAGE_DESCRIPTIONS.anprBezoekers}
         />
@@ -50,6 +51,7 @@ export default function AnprBezoekersPage() {
     <div className="max-w-7xl mx-auto space-y-4">
       <PageHeader
         title="ANPR Bezoekers"
+        tooltip={PAGE_HELP.anprBezoekers}
         color={PAGE_COLORS.anprBezoekers.bg}
         description={PAGE_DESCRIPTIONS.anprBezoekers}
       />

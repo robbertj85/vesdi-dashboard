@@ -152,11 +152,21 @@ export function anprEmissionDistribution(rows: AnprRow[]): { name: string; value
   }));
 }
 
+/**
+ * CBS delivers N23 (= N2 + N3) alongside N2 and N3. Summing or stacking all of
+ * them double-counts trucks, so keep the N2/N3 detail when present, else N23.
+ */
+function dropOverlappingVehicles(rows: AnprRow[]): AnprRow[] {
+  const code = (r: AnprRow) => (r.europeseVoertuigcategorie ?? '').trim();
+  const hasDetail = rows.some((r) => code(r) === 'N2' || code(r) === 'N3');
+  return hasDetail ? rows.filter((r) => code(r) !== 'N23') : rows;
+}
+
 export function anprVehicleCategoryDistribution(rows: AnprRow[]): { name: string; value: number }[] {
   const annual = filterByPeriodType(rows, 'annual');
   const filtered = excludeTotal(annual, 'europeseVoertuigcategorie')
     .filter((r) => r.emissieklasse3 === 'Total');
-  return filtered.map((r) => ({
+  return dropOverlappingVehicles(filtered).map((r) => ({
     name: vehicleLabel(r.europeseVoertuigcategorie),
     value: r.aantalBezoeken,
   }));
@@ -185,7 +195,7 @@ export function anprVisitsByMonth(rows: AnprRow[], granularity: PeriodGranularit
 export function anprMonthlyByVehicle(rows: AnprRow[], granularity: PeriodGranularity = 'M'): { periode: string; [key: string]: string | number }[] {
   const filtered = filterByPeriodType(rows, granularity);
   const emissionTotal = filtered.filter((r) => r.emissieklasse3 === 'Total');
-  const vehicleRows = excludeTotal(emissionTotal, 'europeseVoertuigcategorie');
+  const vehicleRows = dropOverlappingVehicles(excludeTotal(emissionTotal, 'europeseVoertuigcategorie'));
 
   const byPeriod = new Map<string, Record<string, number>>();
   for (const r of vehicleRows) {
@@ -223,7 +233,7 @@ export function anprMonthlyN1vsN23(rows: AnprRow[], granularity: PeriodGranulari
 
 export function anprEmissionByVehicle(rows: AnprRow[]): { voertuig: string; [key: string]: string | number }[] {
   const annual = filterByPeriodType(rows, 'annual');
-  const filtered = excludeTotal(annual, 'europeseVoertuigcategorie');
+  const filtered = dropOverlappingVehicles(excludeTotal(annual, 'europeseVoertuigcategorie'));
   const nonTotal = excludeTotal(filtered, 'emissieklasse3');
 
   const byVehicle = new Map<string, Record<string, number>>();
@@ -456,7 +466,8 @@ function emissionLabel(code: string): string {
   }
 }
 
-function vehicleLabel(code: string): string {
+function vehicleLabel(raw: string): string {
+  const code = (raw ?? '').trim();
   switch (code) {
     case 'N1': return 'N1 (Bestelwagen)';
     case 'N2': return 'N2 (Middelzwaar)';

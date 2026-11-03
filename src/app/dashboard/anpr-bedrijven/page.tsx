@@ -7,7 +7,7 @@ import { HorizontalBarChart } from '@/components/charts/horizontal-bar-chart';
 import { StackedBarAbsolute } from '@/components/charts/stacked-bar-absolute';
 import { DataTable } from '@/components/charts/data-table';
 import { PAGE_COLORS } from '@/lib/colors';
-import { PAGE_DESCRIPTIONS, CHART_TOOLTIPS } from '@/lib/descriptions';
+import { PAGE_DESCRIPTIONS, CHART_TOOLTIPS, PAGE_HELP } from '@/lib/descriptions';
 import { useAnprTable, useAnprLookup } from '@/lib/anpr-selectors';
 import {
   anprVisitsBySbi,
@@ -48,6 +48,7 @@ export default function AnprBedrijvenPage() {
       <div className="max-w-7xl mx-auto space-y-4">
         <PageHeader
           title="ANPR Bedrijfstakken"
+          tooltip={PAGE_HELP.anprBedrijven}
           color={PAGE_COLORS.anprBedrijven.bg}
           description={PAGE_DESCRIPTIONS.anprBedrijven}
         />
@@ -60,6 +61,7 @@ export default function AnprBedrijvenPage() {
     <div className="max-w-7xl mx-auto space-y-4">
       <PageHeader
         title="ANPR Bedrijfstakken"
+        tooltip={PAGE_HELP.anprBedrijven}
         color={PAGE_COLORS.anprBedrijven.bg}
         description={PAGE_DESCRIPTIONS.anprBedrijven}
       />
@@ -105,6 +107,7 @@ export default function AnprBedrijvenPage() {
       {/* Summary table */}
       <DataTable
         title="Bezoeken per bedrijfstak"
+        titleTooltip="Totaal aantal bezoeken per bedrijfstak (SBI-groep) van de voertuigeigenaar."
         data={sbiDistribution.map((d) => ({
           bedrijfstak: d.name,
           bezoeken: d.value,

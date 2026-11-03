@@ -19,6 +19,8 @@ interface DonutChartProps {
   colors?: string[];
   showPercentage?: boolean;
   height?: number;
+  /** Render without the card frame, e.g. inside another card */
+  bare?: boolean;
 }
 
 export function DonutChart({
@@ -28,12 +30,18 @@ export function DonutChart({
   showPercentage = true,
   height = 280,
   titleTooltip,
+  bare = false,
 }: DonutChartProps) {
   const total = data.reduce((s, d) => s + d.value, 0);
 
   return (
-    <Card className="p-4 h-full">
+    <Card className={bare ? 'p-0 border-0 shadow-none bg-transparent gap-0' : 'p-4'}>
       <ChartTitle title={title} tooltip={titleTooltip} />
+      {total === 0 ? (
+        <div className="flex items-center justify-center text-sm text-dmi-text/40" style={{ height }}>
+          Geen data voor deze selectie
+        </div>
+      ) : (
       <ResponsiveContainer width="100%" height={height}>
         <PieChart>
           <Pie
@@ -43,7 +51,11 @@ export function DonutChart({
             innerRadius={50}
             outerRadius={80}
             dataKey="value"
-            label={showPercentage}
+            label={
+              showPercentage
+                ? ({ percent }: { percent?: number }) => `${Math.round((percent ?? 0) * 100)}%`
+                : false
+            }
             labelLine={showPercentage}
           >
             {data.map((_, i) => (
@@ -51,13 +63,15 @@ export function DonutChart({
             ))}
           </Pie>
           <Tooltip
-            formatter={(value) => [
-              (value as number).toLocaleString('nl-NL'),
+            formatter={(value, name) => [
+              `${(value as number).toLocaleString('nl-NL')} (${Math.round(((value as number) / total) * 100)}%)`,
+              name,
             ]}
           />
           <Legend wrapperStyle={{ fontSize: 11 }} />
         </PieChart>
       </ResponsiveContainer>
+      )}
     </Card>
   );
 }

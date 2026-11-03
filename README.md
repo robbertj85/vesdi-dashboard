@@ -16,16 +16,35 @@ More information: [CBS VESDI dossier](https://www.cbs.nl/nl-nl/dossier/vesdi)
 - **Multi-city support** — Works with data from Utrecht, Amsterdam, Den Haag, Rotterdam, Almere, Zwolle and other municipalities
 - **Geographic precision** — PC6→PC4→NUTS3 fallback chain for centroid resolution (464K PC6 centroids)
 - **Client-side processing** — All data stays in the browser (IndexedDB), no server upload required
-- **Dutch language** — Full Dutch UI with tooltips and descriptions
+- **Dutch language** — Full Dutch UI; every page, section, chart, filter and KPI has a (?) tooltip
+- **Demo mode** — Shared-login demo with Utrecht VESDI + ANPR data preloaded
 
 ## Quick Start
 
 ```bash
 npm install
+cp .env.example .env.local   # then set DEMO_USERNAME / DEMO_PASSWORD
+./scripts/prepare-demo-data.sh   # optional: assemble the Utrecht demo dataset
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) and drop your CBS VESDI data files.
+Open [http://localhost:3000](http://localhost:3000), log in, and either explore the Utrecht demo or drop your own CBS VESDI / ANPR data files.
+
+## Demo login & Utrecht demo data
+
+The whole app (pages, `/api/*` and `/geo/*`) is behind one shared login, configured with
+`DEMO_USERNAME` and `DEMO_PASSWORD` (see `.env.example`). Without them nobody can log in.
+Sessions are HMAC-signed httpOnly cookies valid for 7 days; changing the password (or
+`AUTH_SECRET`) logs everyone out.
+
+After login, `/demo` downloads the Utrecht demonstration dataset (VESDI wegvervoersenquête
+2021–2023 + ANPR 2025) from `/api/demo` and processes it in the browser like a normal upload.
+The ANPR tables marked `DUMMY` contain zeros and are filled with synthetic values derived from
+the real M1 table; those pages stay labelled "Dummy-data".
+
+**The CBS data is confidential and is never committed.** `demo-data/` is gitignored. On a
+server, run `scripts/prepare-demo-data.sh` (needs the local `Utrecht/` delivery folders), copy
+`demo-data/utrecht/` next to the app, or point `DEMO_DATA_DIR` at the files.
 
 ### Required Files
 
@@ -54,6 +73,12 @@ NEXT_PUBLIC_ORS_API_KEY=your-api-key
 ```
 
 Requests are proxied through `/api/ors` to avoid CORS issues and processed in parallel batches.
+
+## Basemap
+
+Maps use CARTO's light basemap when `NEXT_PUBLIC_CARTO_API_KEY` is set (free key:
+https://carto.com/basemaps/apikey — CARTO watermarks tiles requested without one). Without a
+key, desaturated OpenStreetMap tiles are used.
 
 ## Tech Stack
 

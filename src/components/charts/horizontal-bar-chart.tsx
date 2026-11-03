@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { Card } from '@/components/ui/card';
-import { formatAxisTick } from '@/lib/format';
+import { formatAxisTick, prettyLabel } from '@/lib/format';
 import { ChartTitle } from './chart-title';
 
 interface HorizontalBarChartProps {
@@ -33,10 +33,10 @@ export function HorizontalBarChart({
   const chartData = data.slice(0, maxItems);
 
   return (
-    <Card className="p-4 h-full">
+    <Card className="p-4">
       <ChartTitle title={title} tooltip={titleTooltip} />
       <ResponsiveContainer width="100%" height={Math.max(200, chartData.length * 28 + 40)}>
-        <BarChart data={chartData} layout="vertical" margin={{ left: 10, right: 10 }}>
+        <BarChart data={chartData} layout="vertical" margin={{ left: 10, right: 10, bottom: xLabel ? 12 : 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e0ddd6" horizontal={false} />
           <XAxis
             type="number"
@@ -49,9 +49,11 @@ export function HorizontalBarChart({
             dataKey="name"
             width={180}
             tick={{ fontSize: 11 }}
+            tickFormatter={prettyLabel}
           />
           <Tooltip
             formatter={(value) => [(value as number).toLocaleString('nl-NL'), 'Aantal']}
+            labelFormatter={prettyLabel}
           />
           <Bar dataKey="value" fill={color} radius={[0, 4, 4, 0]} />
         </BarChart>

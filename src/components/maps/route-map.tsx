@@ -210,7 +210,7 @@ export function RouteMap({ height = 500, maxRoutes = 200, useTrajectories = fals
           map.set(key, agg);
         }
         agg.count += r.aantalDeelritten;
-        if (r.euronormKlasse === '6') {
+        if (String(r.euronormKlasse) === '6') {
           agg.euro6Count += r.aantalDeelritten;
         } else {
           agg.euro05Count += r.aantalDeelritten;
@@ -231,13 +231,7 @@ export function RouteMap({ height = 500, maxRoutes = 200, useTrajectories = fals
     onTotalPairs?.(allPairsSorted.length);
   }, [allPairsSorted.length, onTotalPairs]);
 
-  const fetchRoutes = useCallback(async () => {
-    if (geoKeyPairs.length === 0) {
-      setLoading(false);
-      return;
-    }
-
-    const centroidMap = await loadCentroids();
+  const fetchRoutes = useCallback(async (centroidMap: Record<string, Centroid>) => {
     if (Object.keys(centroidMap).length === 0) {
       setLoading(false);
       return;
@@ -327,10 +321,14 @@ export function RouteMap({ height = 500, maxRoutes = 200, useTrajectories = fals
   }, [geoKeyPairs, useTrajectories, onLegendData]);
 
   useEffect(() => {
-    fetchRoutes();
-  }, [fetchRoutes]);
+    // Nothing to fetch: `isLoading` below is derived as false for empty input
+    if (geoKeyPairs.length === 0) return;
+    loadCentroids().then(fetchRoutes);
+  }, [fetchRoutes, geoKeyPairs.length]);
 
-  if (loading) {
+  const isLoading = loading && geoKeyPairs.length > 0;
+
+  if (isLoading) {
     return (
       <Card className="flex flex-col items-center justify-center" style={{ height }}>
         <Loader2 className="w-8 h-8 text-dmi-orange animate-spin mb-3" />

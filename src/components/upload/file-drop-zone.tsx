@@ -8,6 +8,9 @@ import { Card } from '@/components/ui/card';
 import { useVesdiStore } from '@/lib/store';
 import type { DetectedFile } from '@/lib/types';
 import { useRouter } from 'next/navigation';
+import { InfoTip } from '@/components/ui/info-tip';
+import { SECTION_TOOLTIPS } from '@/lib/descriptions';
+import { municipalityName } from '@/lib/format';
 
 const ACCEPTED_EXTENSIONS = new Set(['.csv', '.xlsx', '.xls', '.docx', '.png', '.jpg', '.jpeg']);
 
@@ -133,7 +136,7 @@ export function FileDropZone() {
             </div>
             <div className="flex-1">
               <p className="font-semibold text-sm text-dmi-text">
-                {municipality?.name || 'Gemeente'} &mdash; {years.join(', ')}
+                {municipalityName(municipality?.name)} &mdash; {years.join(', ')}
               </p>
               <p className="text-xs text-dmi-text/50">
                 Data uit vorige sessie beschikbaar
@@ -233,9 +236,12 @@ export function FileDropZone() {
       {/* Detected files list — clustered by type and year */}
       {detectedFiles.length > 0 && (
         <div className="space-y-3">
-          <h4 className="font-semibold text-xs text-dmi-text/50 uppercase tracking-wide">
-            Gedetecteerde bestanden ({detectedFiles.length})
-          </h4>
+          <div className="flex items-center gap-1">
+            <h4 className="font-semibold text-xs text-dmi-text/50 uppercase tracking-wide">
+              Gedetecteerde bestanden ({detectedFiles.length})
+            </h4>
+            <InfoTip text={SECTION_TOOLTIPS.detectedFiles} />
+          </div>
           <div className="space-y-3 max-h-[360px] overflow-y-auto pr-1">
             {clusterFiles(detectedFiles).map((group) => (
               <div key={group.label}>
@@ -265,7 +271,7 @@ export function FileDropZone() {
             </div>
             <div>
               <p className="font-semibold text-sm text-dmi-text">
-                Gemeente: {municipality.name} ({municipality.code})
+                Gemeente: {municipalityName(municipality.name)} ({municipality.code})
               </p>
               <p className="text-xs text-dmi-text/50">
                 Jaren: {years.join(', ')}
@@ -316,7 +322,7 @@ function clusterFiles(files: DetectedFile[]): FileGroup[] {
 
     let category: string;
     if (isAnpr) category = 'ANPR';
-    else if (isVesdi) category = 'VESDI Wegvervoersenquete';
+    else if (isVesdi) category = 'VESDI Wegvervoersenquête';
     else category = 'Overig';
 
     const year = df.year ?? 0;

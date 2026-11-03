@@ -9,7 +9,7 @@ import { DataTable } from '@/components/charts/data-table';
 import { StackedBar100 } from '@/components/charts/stacked-bar-100';
 import { GroupedBarChart } from '@/components/charts/grouped-bar-chart';
 import { PAGE_COLORS, DMI_COLORS } from '@/lib/colors';
-import { PAGE_DESCRIPTIONS, CHART_TOOLTIPS } from '@/lib/descriptions';
+import { PAGE_DESCRIPTIONS, CHART_TOOLTIPS, PAGE_HELP } from '@/lib/descriptions';
 import { useVesdiStore } from '@/lib/store';
 import {
   trendDeelrittenKms,
@@ -88,13 +88,13 @@ export default function TrendsPage() {
 
   return (
     <div className="max-w-7xl mx-auto">
-      <PageHeader title="Trends" color={PAGE_COLORS.trends.bg} description={PAGE_DESCRIPTIONS.trends}>
+      <PageHeader title="Trends" tooltip={PAGE_HELP.trends} color={PAGE_COLORS.trends.bg} description={PAGE_DESCRIPTIONS.trends}>
         <span className="bg-dmi-orange text-white px-3 py-1 rounded-full text-sm font-medium">
           {years.join(', ')}
         </span>
       </PageHeader>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div data-tour="trend-charts" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Row 1 */}
         <DualAxisLineChart
           title="Aantal deelritten en kms intra-gemeente logistiek"

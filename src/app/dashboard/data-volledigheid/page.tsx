@@ -2,6 +2,8 @@
 
 import { useMemo } from 'react';
 import { PageHeader } from '@/components/layout/page-header';
+import { SectionTitle } from '@/components/ui/info-tip';
+import { PAGE_HELP, SECTION_TOOLTIPS } from '@/lib/descriptions';
 import { FilterBar } from '@/components/layout/filter-bar';
 import { KPICard } from '@/components/layout/kpi-card';
 import { Card } from '@/components/ui/card';
@@ -11,6 +13,7 @@ import { useVesdiStore } from '@/lib/store';
 import { useFilteredZendingen, useFilteredDeelritten } from '@/hooks/use-filtered-data';
 import { dataCompleteness } from '@/lib/aggregate';
 import { formatNumber } from '@/lib/format';
+import { municipalityName } from '@/lib/format';
 
 const ZENDINGEN_FIELDS = [
   { key: 'jaar', label: 'Jaar' },
@@ -101,6 +104,7 @@ export default function DataVolledigheidPage() {
     <div className="max-w-6xl mx-auto">
       <PageHeader
         title="Data volledigheid"
+        tooltip={PAGE_HELP.dataVolledigheid}
         color={DMI_COLORS.green}
         description="Overzicht van de datakwaliteit en volledigheid per veld in de geladen bestanden."
       />
@@ -109,33 +113,35 @@ export default function DataVolledigheidPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <KPICard
           label="Gemeente"
-          value={municipality?.name || 'Onbekend'}
+          value={municipalityName(municipality?.name, 'Onbekend')}
           color={DMI_COLORS.green}
+          tooltip={SECTION_TOOLTIPS.kpiGemeente}
         />
         <KPICard
           label="Jaren"
           value={years.join(', ') || '-'}
           color={DMI_COLORS.green}
+          tooltip={SECTION_TOOLTIPS.kpiJaren}
         />
         <KPICard
           label="Zendingenrijen"
           value={formatNumber(zendingen.length)}
           color={DMI_COLORS.green}
+          tooltip={SECTION_TOOLTIPS.kpiZendingenRijen}
         />
         <KPICard
           label="Deelrittenrijen"
           value={formatNumber(deelritten.length)}
           color={DMI_COLORS.green}
+          tooltip={SECTION_TOOLTIPS.kpiDeelrittenRijen}
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div data-tour="completeness" className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Zendingen completeness */}
         <Card className="p-5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-bold text-dmi-text">
-              Zendingen volledigheid
-            </h3>
+            <SectionTitle title="Zendingen volledigheid" tooltip={SECTION_TOOLTIPS.completenessZendingen} />
             <span
               className="text-sm font-bold"
               style={{ color: avgZendingen >= 0.95 ? DMI_COLORS.green : DMI_COLORS.gold }}
@@ -157,9 +163,7 @@ export default function DataVolledigheidPage() {
         {/* Deelritten completeness */}
         <Card className="p-5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-bold text-dmi-text">
-              Deelritten volledigheid
-            </h3>
+            <SectionTitle title="Deelritten volledigheid" tooltip={SECTION_TOOLTIPS.completenessDeelritten} />
             <span
               className="text-sm font-bold"
               style={{ color: avgDeelritten >= 0.95 ? DMI_COLORS.green : DMI_COLORS.gold }}

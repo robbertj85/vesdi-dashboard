@@ -19,7 +19,7 @@ import {
   voertuigcategorieDistribution,
 } from '@/lib/aggregate';
 import { formatLargeNumber, formatPct } from '@/lib/format';
-import { PAGE_DESCRIPTIONS, KPI_TOOLTIPS, CHART_TOOLTIPS } from '@/lib/descriptions';
+import { PAGE_DESCRIPTIONS, KPI_TOOLTIPS, CHART_TOOLTIPS, PAGE_HELP, CHART_TOOLTIPS_EXTRA } from '@/lib/descriptions';
 import dynamic from 'next/dynamic';
 
 const PC4Choropleth = dynamic(
@@ -75,6 +75,7 @@ export default function NationaleDeelrittenPage() {
     <div className="max-w-7xl mx-auto">
       <PageHeader
         title="Nationale deelritten"
+        tooltip={PAGE_HELP.nationaleDeelritten}
         color={PAGE_COLORS.nationaleDeelritten.bg}
         description={PAGE_DESCRIPTIONS.nationaleDeelritten}
       />
@@ -83,7 +84,7 @@ export default function NationaleDeelrittenPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left column */}
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
+          <div data-tour="kpis" className="grid grid-cols-2 gap-3">
             <KPICard
               label="Bruto gewicht"
               value={formatLargeNumber(kpis.brutoGewicht)}
@@ -109,6 +110,7 @@ export default function NationaleDeelrittenPage() {
         <div className="space-y-4">
           <PC4Choropleth
             title="Gemiddelde beladingsgraad per laad-PC4"
+            titleTooltip={CHART_TOOLTIPS_EXTRA.beladingsgraadPC4Laad}
             data={pc4Data}
             color={DMI_COLORS.primary}
             height={300}

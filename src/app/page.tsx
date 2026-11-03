@@ -1,7 +1,10 @@
 'use client';
 
 import { FileDropZone } from '@/components/upload/file-drop-zone';
-import { FileText, Table, Image, BookOpen, ExternalLink, Camera } from 'lucide-react';
+import { FileText, Table, Image, BookOpen, ExternalLink, Camera, LogOut } from 'lucide-react';
+import { DemoCard } from '@/components/upload/demo-card';
+import { InfoTip } from '@/components/ui/info-tip';
+import { SECTION_TOOLTIPS } from '@/lib/descriptions';
 
 const FILE_TYPES = [
   {
@@ -70,6 +73,16 @@ export default function UploadPage() {
           <span className="text-sm font-condensed font-semibold text-dmi-primary tracking-wide uppercase">
             VESDI Dashboard
           </span>
+          <form action="/api/auth/logout" method="post" className="ml-auto">
+            <button
+              type="submit"
+              title={SECTION_TOOLTIPS.logout}
+              className="flex items-center gap-1.5 text-xs text-dmi-primary/60 hover:text-dmi-primary transition-colors"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              Uitloggen
+            </button>
+          </form>
         </div>
       </header>
 
@@ -82,23 +95,35 @@ export default function UploadPage() {
               Gemeentelijk VESDI-dashboard
             </h1>
             <p className="text-lg text-dmi-text/60 max-w-2xl mx-auto leading-relaxed">
-              Upload de CBS-bestanden van uw gemeente om automatisch een interactief dashboard te genereren met inzichten over stedelijke distributie en logistiek.
+              Bekijk de demo met data van de gemeente Utrecht, of upload de CBS-bestanden van uw eigen gemeente om automatisch een interactief dashboard te genereren met inzichten over stedelijke distributie en logistiek.
             </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Upload card — takes 2 columns */}
-            <div className="lg:col-span-2 bg-white rounded-2xl shadow-lg shadow-dmi-primary/5 p-8">
-              <FileDropZone />
+            <div className="lg:col-span-2 bg-white rounded-2xl shadow-lg shadow-dmi-primary/5 p-8 space-y-6">
+              <DemoCard />
+              <div>
+                <div className="flex items-center gap-1 mb-3">
+                  <h2 className="text-sm font-semibold font-condensed text-dmi-text uppercase tracking-wide">
+                    Of upload eigen bestanden
+                  </h2>
+                  <InfoTip text={SECTION_TOOLTIPS.dropZone} />
+                </div>
+                <FileDropZone />
+              </div>
             </div>
 
             {/* Info sidebar */}
             <div className="space-y-5">
               {/* Accepted file types */}
               <div className="bg-white rounded-2xl shadow-lg shadow-dmi-primary/5 p-6">
-                <h3 className="text-sm font-semibold font-condensed text-dmi-text uppercase tracking-wide mb-4">
-                  Ondersteunde bestanden
-                </h3>
+                <div className="flex items-center gap-1 mb-4">
+                  <h3 className="text-sm font-semibold font-condensed text-dmi-text uppercase tracking-wide">
+                    Ondersteunde bestanden
+                  </h3>
+                  <InfoTip text={SECTION_TOOLTIPS.supportedFiles} />
+                </div>
                 <div className="space-y-3">
                   {FILE_TYPES.map((ft) => (
                     <div key={ft.label} className="flex items-start gap-3">
@@ -120,9 +145,12 @@ export default function UploadPage() {
 
               {/* How it works */}
               <div className="bg-white rounded-2xl shadow-lg shadow-dmi-primary/5 p-6">
-                <h3 className="text-sm font-semibold font-condensed text-dmi-text uppercase tracking-wide mb-4">
-                  Hoe werkt het?
-                </h3>
+                <div className="flex items-center gap-1 mb-4">
+                  <h3 className="text-sm font-semibold font-condensed text-dmi-text uppercase tracking-wide">
+                    Hoe werkt het?
+                  </h3>
+                  <InfoTip text={SECTION_TOOLTIPS.howItWorks} />
+                </div>
                 <ol className="space-y-3 text-sm text-dmi-text/70">
                   <li className="flex gap-3">
                     <span className="shrink-0 w-5 h-5 rounded-full bg-dmi-primary text-white text-xs flex items-center justify-center font-bold">1</span>
@@ -152,7 +180,7 @@ export default function UploadPage() {
             </p>
             <span className="text-dmi-text/20">|</span>
             <a
-              href="https://github.com/VESDI-project/vesdi-dashboard"
+              href="https://github.com/robbertj85/vesdi-dashboard"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1 text-xs text-dmi-primary/50 hover:text-dmi-primary transition-colors"

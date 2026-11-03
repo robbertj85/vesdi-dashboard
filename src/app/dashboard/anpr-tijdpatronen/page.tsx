@@ -6,7 +6,7 @@ import { DummyBanner } from '@/components/layout/dummy-banner';
 import { DataTable } from '@/components/charts/data-table';
 import { StackedBarAbsolute } from '@/components/charts/stacked-bar-absolute';
 import { PAGE_COLORS } from '@/lib/colors';
-import { PAGE_DESCRIPTIONS, CHART_TOOLTIPS } from '@/lib/descriptions';
+import { PAGE_DESCRIPTIONS, CHART_TOOLTIPS, PAGE_HELP } from '@/lib/descriptions';
 import { useAnprTable, useAnprLookup } from '@/lib/anpr-selectors';
 import {
   anprTimeOfDayByWeekday,
@@ -47,6 +47,7 @@ export default function AnprTijdpatronenPage() {
       <div className="max-w-7xl mx-auto space-y-4">
         <PageHeader
           title="ANPR Tijdpatronen"
+          tooltip={PAGE_HELP.anprTijdpatronen}
           color={PAGE_COLORS.anprTijdpatronen.bg}
           description={PAGE_DESCRIPTIONS.anprTijdpatronen}
         />
@@ -59,6 +60,7 @@ export default function AnprTijdpatronenPage() {
     <div className="max-w-7xl mx-auto space-y-4">
       <PageHeader
         title="ANPR Tijdpatronen"
+        tooltip={PAGE_HELP.anprTijdpatronen}
         color={PAGE_COLORS.anprTijdpatronen.bg}
         description={PAGE_DESCRIPTIONS.anprTijdpatronen}
       />

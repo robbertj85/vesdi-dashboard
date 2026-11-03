@@ -2,9 +2,10 @@
 
 import { useState, useCallback } from 'react';
 import { PageHeader } from '@/components/layout/page-header';
+import { SectionTitle } from '@/components/ui/info-tip';
 import { DataSourceFooter } from '@/components/layout/data-source-footer';
 import { PAGE_COLORS } from '@/lib/colors';
-import { PAGE_DESCRIPTIONS } from '@/lib/descriptions';
+import { PAGE_DESCRIPTIONS, PAGE_HELP, SECTION_TOOLTIPS } from '@/lib/descriptions';
 import { Card } from '@/components/ui/card';
 import { AlertTriangle, Route, Minus } from 'lucide-react';
 import dynamic from 'next/dynamic';
@@ -43,18 +44,17 @@ export default function RoutekaartPage() {
     <div className="max-w-7xl mx-auto">
       <PageHeader
         title="Routekaart"
+        tooltip={PAGE_HELP.routekaart}
         color={PAGE_COLORS.routekaart.accent}
         description={PAGE_DESCRIPTIONS.routekaart}
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Legend + controls */}
-        <div className="space-y-4">
+        <div data-tour="route-controls" className="space-y-4">
           {/* Route limit selector */}
           <Card className="p-4">
-            <h3 className="text-sm font-semibold text-dmi-text mb-2">
-              Aantal routes
-            </h3>
+            <SectionTitle title="Aantal routes" tooltip={SECTION_TOOLTIPS.routeAantal} className="mb-2" />
             <p className="text-xs text-dmi-text/50 mb-3">
               Top PC4-herkomst-bestemmingsparen
               {totalPairs > 0 && (
@@ -80,9 +80,7 @@ export default function RoutekaartPage() {
 
           {/* Route mode toggle */}
           <Card className="p-4">
-            <h3 className="text-sm font-semibold text-dmi-text mb-2">
-              Weergave
-            </h3>
+            <SectionTitle title="Weergave" tooltip={SECTION_TOOLTIPS.routeWeergave} className="mb-2" />
             <p className="text-xs text-dmi-text/50 mb-3">
               Rechte lijnen laden direct. Trajecten vragen routes op bij de routeserver.
             </p>
@@ -113,9 +111,7 @@ export default function RoutekaartPage() {
           </Card>
 
           <Card className="p-4">
-            <h3 className="text-sm font-semibold text-dmi-text mb-3">
-              Aantal deelritten
-            </h3>
+            <SectionTitle title="Aantal deelritten" tooltip={SECTION_TOOLTIPS.routeLegenda} className="mb-3" />
             <div className="space-y-1">
               {legendBuckets.map((bucket, i) => (
                 <div key={i} className="flex items-center gap-2">
@@ -134,9 +130,7 @@ export default function RoutekaartPage() {
           </Card>
 
           <Card className="p-4">
-            <h3 className="text-sm font-semibold text-dmi-text mb-2">
-              Omschrijving kaart
-            </h3>
+            <SectionTitle title="Omschrijving kaart" tooltip={SECTION_TOOLTIPS.routeOmschrijving} className="mb-2" />
             <div className="text-xs text-dmi-text/70 space-y-2">
               <p>
                 De kaart toont de vermoedelijke routes op basis van deelritgegevens
@@ -149,9 +143,11 @@ export default function RoutekaartPage() {
               </p>
             </div>
 
-            <h3 className="text-sm font-semibold text-dmi-text mb-2 mt-4">
-              Beperkingen van de kaart
-            </h3>
+            <SectionTitle
+              title="Beperkingen van de kaart"
+              tooltip="Lees de kaart als indicatie: routes zijn berekend, niet gemeten."
+              className="mb-2 mt-4"
+            />
             <ul className="text-xs text-dmi-text/70 space-y-1 list-disc pl-4">
               <li>Alleen bewegingen met bekende PC4 laad- en loslocatie</li>
               <li>Routes zijn mogelijke, niet noodzakelijk werkelijk gereden routes</li>

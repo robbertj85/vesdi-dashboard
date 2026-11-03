@@ -5,7 +5,7 @@ import { PageHeader } from '@/components/layout/page-header';
 import { KPICard } from '@/components/layout/kpi-card';
 import { DonutChart } from '@/components/charts/donut-chart';
 import { PAGE_COLORS, DMI_COLORS } from '@/lib/colors';
-import { PAGE_DESCRIPTIONS, CHART_TOOLTIPS } from '@/lib/descriptions';
+import { PAGE_DESCRIPTIONS, CHART_TOOLTIPS, PAGE_HELP } from '@/lib/descriptions';
 import { useAnprTable } from '@/lib/anpr-selectors';
 import {
   anprTotalVisits,
@@ -55,7 +55,10 @@ export default function AnprOverzichtPage() {
 
   // Compute N1 and N2/N3 annual totals for KPIs
   const n1Total = useMemo(() => vehicleDist.find((d) => d.name.startsWith('N1'))?.value ?? 0, [vehicleDist]);
-  const n23Total = useMemo(() => vehicleDist.find((d) => d.name.startsWith('N2+N3'))?.value ?? 0, [vehicleDist]);
+  const n23Total = useMemo(
+    () => vehicleDist.filter((d) => !d.name.startsWith('N1')).reduce((s, d) => s + d.value, 0),
+    [vehicleDist]
+  );
 
   // Descriptive statistics per vehicle category
   const stats = useMemo(() => {
@@ -96,6 +99,7 @@ export default function AnprOverzichtPage() {
       <div className="max-w-7xl mx-auto space-y-4">
         <PageHeader
           title="ANPR Overzicht"
+          tooltip={PAGE_HELP.anprOverzicht}
           color={PAGE_COLORS.anprOverzicht.bg}
           description={PAGE_DESCRIPTIONS.anprOverzicht}
         />
@@ -108,6 +112,7 @@ export default function AnprOverzichtPage() {
     <div className="max-w-7xl mx-auto space-y-4">
       <PageHeader
         title="ANPR Overzicht"
+        tooltip={PAGE_HELP.anprOverzicht}
         color={PAGE_COLORS.anprOverzicht.bg}
         description={PAGE_DESCRIPTIONS.anprOverzicht}
       />
@@ -194,9 +199,9 @@ export default function AnprOverzichtPage() {
             <CartesianGrid strokeDasharray="3 3" stroke="#e0ddd6" />
             <XAxis dataKey="periode" tick={{ fontSize: 10 }} interval={0} angle={-45} textAnchor="end" height={90} />
             {vehicleMode === 'abs' ? (
-              <YAxis tickFormatter={(v: number) => formatLargeNumber(v)} />
+              <YAxis tickFormatter={(v: number) => formatLargeNumber(v)} tick={{ fontSize: 11 }} />
             ) : (
-              <YAxis tickFormatter={(v: number) => formatPercentage(v, 0)} domain={[0, 1]} />
+              <YAxis tickFormatter={(v: number) => formatPercentage(v, 0)} domain={[0, 1]} tick={{ fontSize: 11 }} />
             )}
             <Tooltip
               formatter={(v, name) =>
@@ -205,7 +210,7 @@ export default function AnprOverzichtPage() {
                   : [formatPercentage(Number(v), 1), String(name)]
               }
             />
-            <Legend />
+            <Legend wrapperStyle={{ fontSize: 11 }} />
             <Bar
               dataKey={vehicleMode === 'abs' ? 'N1' : 'N1_pct'}
               name="N1 (Bestelwagen)"

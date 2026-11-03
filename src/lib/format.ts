@@ -69,3 +69,16 @@ export function formatAxisTick(value: number): string {
   if (abs >= 1_000) return `${(value / 1_000).toLocaleString('nl-NL', { maximumFractionDigits: 0 })}K`;
   return value.toLocaleString('nl-NL');
 }
+
+/** Turn raw CBS codes into readable chart labels (e.g. '***Lege_rit***' → 'Lege rit'). */
+export function prettyLabel(value: unknown): string {
+  const s = String(value ?? '');
+  if (/^\*+lege_rit\*+$/i.test(s)) return 'Lege rit';
+  return s;
+}
+
+/** CBS/NUTS names carry suffixes like "Utrecht (gemeente)"; show just the name. */
+export function municipalityName(name: string | null | undefined, fallback = 'Gemeente'): string {
+  if (!name) return fallback;
+  return name.replace(/\s*\((gemeente|gem\.)\)\s*$/i, '').trim() || fallback;
+}

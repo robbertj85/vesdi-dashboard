@@ -7,6 +7,8 @@ import Link from 'next/link';
 import { Upload, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { DemoCard } from '@/components/upload/demo-card';
+import { TourProvider } from '@/components/tour/tour-provider';
 
 function DashboardContent({ children }: { children: React.ReactNode }) {
   const { expanded } = useSidebar();
@@ -57,8 +59,11 @@ export default function DashboardLayout({
           <p className="text-sm text-dmi-text/60">
             Upload eerst CBS- of ANPR-bestanden om het dashboard te bekijken
           </p>
+          <div className="max-w-md mx-auto text-left">
+            <DemoCard compact redirectTo={null} />
+          </div>
           <Link href="/">
-            <Button className="bg-dmi-orange hover:bg-dmi-orange/90 text-white">
+            <Button variant="outline">
               Naar upload pagina
             </Button>
           </Link>
@@ -69,7 +74,9 @@ export default function DashboardLayout({
 
   return (
     <SidebarProvider>
-      <DashboardContent>{children}</DashboardContent>
+      <TourProvider>
+        <DashboardContent>{children}</DashboardContent>
+      </TourProvider>
     </SidebarProvider>
   );
 }

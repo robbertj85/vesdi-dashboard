@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useCallback } from 'react';
 import { PageHeader } from '@/components/layout/page-header';
+import { PAGE_HELP } from '@/lib/descriptions';
 import { PAGE_COLORS, DMI_COLORS } from '@/lib/colors';
 import { useAnprTable } from '@/lib/anpr-selectors';
 import { anprMonthlyByEmissionAndVehicle, anprMonthlyEuro6Pct } from '@/lib/anpr-aggregate';
@@ -202,7 +203,7 @@ export default function AnprAnalysePage() {
   if (!m1) {
     return (
       <div className="max-w-7xl mx-auto space-y-4">
-        <PageHeader title="ANPR Analyse" color={PAGE_COLORS.anprEmissie.bg} description="Regressie, extrapolatie en statistische vergelijking van ANPR emissiedata." />
+        <PageHeader title="ANPR Analyse" tooltip={PAGE_HELP.anprAnalyse} color={PAGE_COLORS.anprEmissie.bg} description="Regressie, extrapolatie en statistische vergelijking van ANPR emissiedata." />
         <p className="text-sm text-dmi-text/60">Geen ANPR M1-data geladen.</p>
       </div>
     );
@@ -210,7 +211,7 @@ export default function AnprAnalysePage() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-4">
-      <PageHeader title="ANPR Analyse" color={PAGE_COLORS.anprEmissie.bg} description="Regressie, extrapolatie en statistische vergelijking van ANPR emissiedata." />
+      <PageHeader title="ANPR Analyse" tooltip={PAGE_HELP.anprAnalyse} color={PAGE_COLORS.anprEmissie.bg} description="Regressie, extrapolatie en statistische vergelijking van ANPR emissiedata." />
 
       {/* ─── Regression + Extrapolation ─── */}
       <Card className="p-4">
@@ -228,9 +229,9 @@ export default function AnprAnalysePage() {
           <ComposedChart data={regressionData.chartData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e0ddd6" />
             <XAxis dataKey="periode" tick={{ fontSize: 10 }} interval={Math.max(0, Math.ceil(regressionData.chartData.length / 12) - 1)} angle={-45} textAnchor="end" height={80} />
-            <YAxis tickFormatter={(v: number) => formatPercentage(v, 0)} domain={[0, 'auto']} />
+            <YAxis tickFormatter={(v: number) => formatPercentage(v, 0)} domain={[0, 'auto']} tick={{ fontSize: 11 }} />
             <Tooltip formatter={(v) => v != null ? formatPercentage(Number(v), 2) : '—'} />
-            <Legend />
+            <Legend wrapperStyle={{ fontSize: 11 }} />
             <Line type="monotone" dataKey="euro6Pct" name="% Euro-6" stroke={DMI_COLORS.orange} strokeWidth={2} dot={{ r: 3 }} connectNulls={false} />
             <Line type="monotone" dataKey="zeroPct" name="% Zero-emissie" stroke={DMI_COLORS.green} strokeWidth={2} dot={{ r: 3 }} connectNulls={false} />
             <Line type="monotone" dataKey="euro05Pct" name="% Euro 0-5" stroke={DMI_COLORS.red} strokeWidth={2} dot={{ r: 3 }} connectNulls={false} />

@@ -29,7 +29,7 @@ export function DataTable({
   titleTooltip,
 }: DataTableProps) {
   return (
-    <Card className="p-4 h-full overflow-auto">
+    <Card className="p-4 overflow-auto">
       <ChartTitle title={title} tooltip={titleTooltip} />
       <Table>
         <TableHeader>

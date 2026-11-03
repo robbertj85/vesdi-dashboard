@@ -1,5 +1,6 @@
 'use client';
 
+import { SectionTitle } from '@/components/ui/info-tip';
 import { useMemo, useEffect, useState } from 'react';
 import { CircleMarker, Tooltip } from 'react-leaflet';
 import { DynamicMap } from './dynamic-map';
@@ -18,42 +19,57 @@ interface Centroid {
 
 interface PC4BubbleMapProps {
   title: string;
+  titleTooltip?: string;
   data: PC4BubbleData[];
   color?: string;
   height?: number;
   level?: 'PC4' | 'PC6';
+  /** Render without the card frame, e.g. inside another card */
+  bare?: boolean;
 }
+
+const EMPTY_CENTROIDS: Record<string, Centroid> = {};
 
 export function PC4BubbleMap({
   title,
+  titleTooltip,
   data,
   color = '#1d3b64',
   height = 300,
   level = 'PC4',
+  bare = false,
 }: PC4BubbleMapProps) {
-  const [centroids, setCentroids] = useState<Record<string, Centroid>>({});
-  const [loading, setLoading] = useState(true);
+  // Centroids are tagged with the level they were loaded for, so `loading`
+  // can be derived instead of set synchronously inside the effect.
+  const [loaded, setLoaded] = useState<{ level: 'PC4' | 'PC6'; centroids: Record<string, Centroid> } | null>(null);
+  const loading = loaded?.level !== level;
+  const centroids = loaded?.level === level ? loaded.centroids : EMPTY_CENTROIDS;
 
   useEffect(() => {
+    let cancelled = false;
     const file = level === 'PC6' ? '/geo/pc6-centroids.json' : '/geo/pc4-centroids.json';
-    setLoading(true);
     fetch(file)
       .then((res) => res.json())
       .then((raw) => {
+        if (cancelled) return;
         if (level === 'PC6') {
           // PC6 format: {"1234AB": [lat, lng], ...}
           const mapped: Record<string, Centroid> = {};
           for (const [code, coords] of Object.entries(raw as Record<string, [number, number]>)) {
             mapped[code] = { lat: coords[0], lng: coords[1] };
           }
-          setCentroids(mapped);
+          setLoaded({ level, centroids: mapped });
         } else {
           // PC4 format: {"1234": {lat, lng}, ...}
-          setCentroids(raw as Record<string, Centroid>);
+          setLoaded({ level, centroids: raw as Record<string, Centroid> });
         }
-        setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(() => {
+        if (!cancelled) setLoaded({ level, centroids: {} });
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [level]);
 
   const maxCount = useMemo(
@@ -94,8 +110,8 @@ export function PC4BubbleMap({
   const levelLabel = level === 'PC6' ? 'PC6' : 'PC4';
 
   return (
-    <Card className="p-2">
-      {title && <h3 className="text-sm font-semibold text-dmi-text px-2 mb-2">{title}</h3>}
+    <Card className={bare ? 'p-0 border-0 shadow-none bg-transparent gap-2' : 'p-2'}>
+      {title && <SectionTitle title={title} tooltip={titleTooltip} className={bare ? '' : 'px-2 mb-2'} />}
       <DynamicMap center={center} zoom={level === 'PC6' ? 13 : 11} height={height - 40}>
         {mappedData.map((d) => {
           const radius = Math.max(3, Math.sqrt(d.count / maxCount) * 20);

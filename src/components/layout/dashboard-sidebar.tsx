@@ -26,12 +26,17 @@ import {
   Users,
   Clock,
   FlaskConical,
+  LogOut,
+  GraduationCap,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DMI_COLORS } from '@/lib/colors';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useSidebar } from './sidebar-context';
 import { useVesdiStore } from '@/lib/store';
+import { InfoTip } from '@/components/ui/info-tip';
+import { SECTION_TOOLTIPS } from '@/lib/descriptions';
+import { useTour } from '@/components/tour/tour-provider';
 
 const GENERAL_NAV_ITEMS = [
   { href: '/dashboard/voorblad', icon: Home, label: 'Voorblad', desc: 'Titelpagina en samenvatting', color: DMI_COLORS.orange },
@@ -77,7 +82,7 @@ function renderNavItem(item: NavItem, pathname: string, expanded: boolean) {
       className={cn(
         'flex rounded-lg transition-colors',
         expanded
-          ? 'items-start gap-2.5 px-2.5 py-2'
+          ? 'items-start gap-2.5 px-2.5 py-1.5'
           : 'items-center w-10 h-10 justify-center',
         isActive
           ? 'text-white'
@@ -102,8 +107,22 @@ function renderNavItem(item: NavItem, pathname: string, expanded: boolean) {
   return (
     <Tooltip key={item.href}>
       <TooltipTrigger asChild>{linkEl}</TooltipTrigger>
-      <TooltipContent side="right">{item.label}</TooltipContent>
+      <TooltipContent side="right">
+        <span className="font-semibold block">{item.label}</span>
+        <span className="opacity-80">{item.desc}</span>
+      </TooltipContent>
     </Tooltip>
+  );
+}
+
+function SectionLabel({ label, tooltip }: { label: string; tooltip: string }) {
+  return (
+    <div className="px-2.5 py-1 flex items-center gap-1">
+      <span className="text-[10px] uppercase tracking-wider font-semibold text-white/40">
+        {label}
+      </span>
+      <InfoTip text={tooltip} side="right" className="text-white/30 hover:text-white/70" />
+    </div>
   );
 }
 
@@ -111,6 +130,7 @@ export function DashboardSidebar() {
   const pathname = usePathname();
   const { expanded, toggle } = useSidebar();
   const hasAnprData = useVesdiStore((s) => s.anprTables.size > 0);
+  const tour = useTour();
 
   return (
     <aside
@@ -156,73 +176,91 @@ export function DashboardSidebar() {
         )}
       </div>
 
-      <div className={cn('border-t border-white/20 my-3', expanded ? 'mx-3' : 'mx-4')} />
+      <div className={cn('border-t border-white/20 my-2', expanded ? 'mx-3' : 'mx-4')} />
 
       {/* Nav items */}
-      <nav className={cn(
-        'flex-1 flex flex-col gap-0.5 overflow-y-auto',
+      <nav data-tour="sidebar-nav" className={cn(
+        // Fade the last few pixels so it is visible that the list scrolls
+        'flex-1 flex flex-col gap-0.5 overflow-y-auto pb-4 [mask-image:linear-gradient(to_bottom,black_calc(100%-28px),transparent)]',
         expanded ? 'px-2' : 'items-center'
       )}>
         {GENERAL_NAV_ITEMS.map((item) => renderNavItem(item, pathname, expanded))}
 
         {/* Wegvervoersenquete section */}
         <div className={cn('border-t border-white/20 my-2', expanded ? 'mx-1' : 'mx-2')} />
-        {expanded && (
-          <div className="px-2.5 py-1">
-            <span className="text-[10px] uppercase tracking-wider font-semibold text-white/40">
-              Wegvervoersenquete
-            </span>
-          </div>
-        )}
+        {expanded && <SectionLabel label="Wegvervoersenquête" tooltip={SECTION_TOOLTIPS.navWegvervoer} />}
         {WVE_NAV_ITEMS.map((item) => renderNavItem(item, pathname, expanded))}
 
         {/* ANPR section */}
         {hasAnprData && (
           <>
             <div className={cn('border-t border-white/20 my-2', expanded ? 'mx-1' : 'mx-2')} />
-            {expanded && (
-              <div className="px-2.5 py-1">
-                <span className="text-[10px] uppercase tracking-wider font-semibold text-white/40">
-                  ANPR
-                </span>
-              </div>
-            )}
+            {expanded && <SectionLabel label="ANPR" tooltip={SECTION_TOOLTIPS.navAnpr} />}
             {ANPR_NAV_ITEMS.map((item) => renderNavItem(item, pathname, expanded))}
           </>
         )}
 
         {/* Systeem section */}
         <div className={cn('border-t border-white/20 my-2', expanded ? 'mx-1' : 'mx-2')} />
-        {expanded && (
-          <div className="px-2.5 py-1">
-            <span className="text-[10px] uppercase tracking-wider font-semibold text-white/40">
-              Systeem
-            </span>
-          </div>
-        )}
+        {expanded && <SectionLabel label="Systeem" tooltip={SECTION_TOOLTIPS.navSysteem} />}
         {SYSTEM_NAV_ITEMS.map((item) => renderNavItem(item, pathname, expanded))}
       </nav>
 
-      {/* Expand/collapse toggle */}
+      {/* Guided tour */}
       <div className={cn('mt-2', expanded ? 'px-2' : 'flex justify-center')}>
-        <button
-          onClick={toggle}
-          className={cn(
-            'flex items-center rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors',
-            expanded
-              ? 'w-full gap-2.5 px-2.5 py-2'
-              : 'w-10 h-10 justify-center'
-          )}
-        >
-          {expanded ? (
-            <>
-              <PanelLeftClose className="w-5 h-5 shrink-0" />
-              <span className="text-sm">Inklappen</span>
-            </>
-          ) : (
-            <PanelLeftOpen className="w-5 h-5" />
-          )}
-        </button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              onClick={tour.start}
+              className={cn(
+                'flex items-center rounded-lg text-dmi-gold hover:text-white hover:bg-white/10 transition-colors',
+                expanded ? 'w-full gap-2.5 px-2.5 py-2' : 'w-10 h-10 justify-center'
+              )}
+            >
+              <GraduationCap className="w-5 h-5 shrink-0" />
+              {expanded && <span className="text-sm font-medium">Rondleiding</span>}
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="right" className="max-w-[240px]">
+            Interactieve rondleiding langs de belangrijkste onderdelen van het dashboard
+          </TooltipContent>
+        </Tooltip>
+      </div>
+
+      {/* Logout + collapse, side by side when expanded */}
+      <div className={cn('flex', expanded ? 'px-2 gap-1' : 'flex-col items-center')}>
+        <form action="/api/auth/logout" method="post" className={cn(expanded && 'flex-1')}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="submit"
+                className={cn(
+                  'flex items-center rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors',
+                  expanded ? 'w-full gap-2.5 px-2.5 py-2' : 'w-10 h-10 justify-center'
+                )}
+              >
+                <LogOut className="w-5 h-5 shrink-0" />
+                {expanded && <span className="text-sm">Uitloggen</span>}
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="right" className="max-w-[240px]">{SECTION_TOOLTIPS.logout}</TooltipContent>
+          </Tooltip>
+        </form>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              onClick={toggle}
+              aria-label={expanded ? 'Zijbalk inklappen' : 'Zijbalk uitklappen'}
+              className="flex items-center justify-center w-10 h-10 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+            >
+              {expanded ? <PanelLeftClose className="w-5 h-5" /> : <PanelLeftOpen className="w-5 h-5" />}
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="right">{expanded ? 'Zijbalk inklappen' : 'Zijbalk uitklappen'}</TooltipContent>
+        </Tooltip>
       </div>
     </aside>
   );

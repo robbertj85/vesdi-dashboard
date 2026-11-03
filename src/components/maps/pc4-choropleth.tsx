@@ -1,5 +1,6 @@
 'use client';
 
+import { SectionTitle } from '@/components/ui/info-tip';
 import { useMemo } from 'react';
 import { GeoJSON } from 'react-leaflet';
 import { DynamicMap } from './dynamic-map';
@@ -16,6 +17,7 @@ interface PC4ChoroplethData {
 
 interface PC4ChoroplethProps {
   title: string;
+  titleTooltip?: string;
   data: PC4ChoroplethData[];
   color?: string;
   height?: number;
@@ -23,6 +25,7 @@ interface PC4ChoroplethProps {
 
 export function PC4Choropleth({
   title,
+  titleTooltip,
   data,
   height = 300,
 }: PC4ChoroplethProps) {
@@ -82,7 +85,7 @@ export function PC4Choropleth({
 
   return (
     <Card className="p-2">
-      <h3 className="text-sm font-semibold text-dmi-text px-2 mb-2">{title}</h3>
+      <SectionTitle title={title} tooltip={titleTooltip} className="px-2 mb-2" />
       <DynamicMap center={[52.09, 5.12]} zoom={11} height={height - 40}>
         <GeoJSON
           data={geojson}

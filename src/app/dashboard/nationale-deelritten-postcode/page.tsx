@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { PageHeader } from '@/components/layout/page-header';
+import { SectionTitle } from '@/components/ui/info-tip';
 import { DataSourceFooter } from '@/components/layout/data-source-footer';
 import { FilterBar } from '@/components/layout/filter-bar';
 import { KPICard } from '@/components/layout/kpi-card';
@@ -21,7 +22,7 @@ import {
   legeDeelrittenPercentage,
 } from '@/lib/aggregate';
 import { formatLargeNumber, formatPct } from '@/lib/format';
-import { PAGE_DESCRIPTIONS, KPI_TOOLTIPS, CHART_TOOLTIPS } from '@/lib/descriptions';
+import { PAGE_DESCRIPTIONS, KPI_TOOLTIPS, CHART_TOOLTIPS, PAGE_HELP, SECTION_TOOLTIPS, CHART_TOOLTIPS_EXTRA } from '@/lib/descriptions';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import dynamic from 'next/dynamic';
@@ -61,6 +62,7 @@ export default function NationaleDeelrittenPostcodePage() {
     <div className="max-w-7xl mx-auto">
       <PageHeader
         title="Nationale deelritten - postcode"
+        tooltip={PAGE_HELP.nationaleDeelrittenPostcode}
         color={PAGE_COLORS.nationaleDeelritten.bg}
         description={PAGE_DESCRIPTIONS.nationaleDeelrittenPostcode}
       />
@@ -68,9 +70,9 @@ export default function NationaleDeelrittenPostcodePage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* INPUT section */}
-        <Card className="p-6 border-2 border-dmi-primary/20">
+        <Card data-tour="postcode-input" className="p-6 border-2 border-dmi-primary/20">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold text-dmi-primary">INPUT</h2>
+            <SectionTitle as="h2" title="INPUT" tooltip={SECTION_TOOLTIPS.inputSection} />
             <div className="flex gap-1">
               <Button
                 variant={pcLevel === 'PC4' ? 'default' : 'outline'}
@@ -93,17 +95,21 @@ export default function NationaleDeelrittenPostcodePage() {
 
           <div className="space-y-4">
             <PC4BubbleMap
+              bare
               title={`Aantal deelritten per laad ${pcLevel}`}
+              titleTooltip={CHART_TOOLTIPS_EXTRA.pc4LaadDeelritten}
               data={laadPC4.slice(0, 50)}
               color={DMI_COLORS.primary}
-              height={250}
+              height={340}
               level={pcLevel}
             />
             <PC4BubbleMap
+              bare
               title={`Aantal deelritten per los ${pcLevel}`}
+              titleTooltip={CHART_TOOLTIPS_EXTRA.pc4LosDeelritten}
               data={losPC4.slice(0, 50)}
               color={DMI_COLORS.primary}
-              height={250}
+              height={340}
               level={pcLevel}
             />
           </div>
@@ -111,7 +117,7 @@ export default function NationaleDeelrittenPostcodePage() {
 
         {/* OUTPUT section */}
         <Card className="p-6 border-2 border-dmi-primary/20">
-          <h2 className="text-lg font-bold text-dmi-primary mb-4">OUTPUT</h2>
+          <SectionTitle as="h2" title="OUTPUT" tooltip={SECTION_TOOLTIPS.outputSection} className="mb-4" />
 
           <div className="grid grid-cols-2 gap-3 mb-4">
             <KPICard

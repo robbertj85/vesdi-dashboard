@@ -110,3 +110,16 @@
     font-family: var(--font-ibm-plex-sans-condensed), sans-serif;
   }
 }
+
+/* Leaflet uses z-index 400-1000 internally; without its own stacking context those
+   layers paint over tooltips, select dropdowns and popovers (z-50) elsewhere on the page. */
+.leaflet-container {
+  isolation: isolate;
+  z-index: 0;
+}
+
+/* Keyless OpenStreetMap fallback basemap, toned down to resemble a light basemap */
+.leaflet-tile-pane .basemap-muted {
+  filter: grayscale(1) brightness(1.08) contrast(0.85);
+  opacity: 0.75;
+}

@@ -11,7 +11,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { Card } from '@/components/ui/card';
-import { formatAxisTick } from '@/lib/format';
+import { formatAxisTick, prettyLabel } from '@/lib/format';
 import { YEAR_COLORS } from '@/lib/colors';
 import { ChartTitle } from './chart-title';
 
@@ -33,7 +33,7 @@ export function GroupedBarChart({
   const chartData = data.slice(0, maxItems);
 
   return (
-    <Card className="p-4 h-full">
+    <Card className="p-4">
       <ChartTitle title={title} tooltip={titleTooltip} />
       <ResponsiveContainer width="100%" height={Math.max(250, chartData.length * 32 + 60)}>
         <BarChart data={chartData} layout="vertical" margin={{ left: 10, right: 10 }}>
@@ -48,11 +48,13 @@ export function GroupedBarChart({
             dataKey="klasse"
             width={180}
             tick={{ fontSize: 11 }}
+            tickFormatter={prettyLabel}
           />
           <Tooltip
             formatter={(value) => [
               (value as number).toLocaleString('nl-NL'),
             ]}
+            labelFormatter={prettyLabel}
           />
           <Legend wrapperStyle={{ fontSize: 11 }} />
           {years.map((year) => (

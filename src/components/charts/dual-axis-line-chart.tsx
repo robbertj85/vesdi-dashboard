@@ -40,7 +40,7 @@ export function DualAxisLineChart({
   const hasLine2 = data.some((d) => d.value2 !== undefined);
 
   return (
-    <Card className="p-4 h-full">
+    <Card className="p-4">
       <ChartTitle title={title} tooltip={titleTooltip} />
       <ResponsiveContainer width="100%" height={height}>
         <ComposedChart data={data}>

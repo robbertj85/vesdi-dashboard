@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { PageHeader } from '@/components/layout/page-header';
 import { StackedBarAbsolute } from '@/components/charts/stacked-bar-absolute';
 import { PAGE_COLORS, DMI_COLORS } from '@/lib/colors';
-import { PAGE_DESCRIPTIONS, CHART_TOOLTIPS } from '@/lib/descriptions';
+import { PAGE_DESCRIPTIONS, CHART_TOOLTIPS, PAGE_HELP } from '@/lib/descriptions';
 import { useAnprTable } from '@/lib/anpr-selectors';
 import {
   anprMonthlyEuro6Pct,
@@ -95,7 +95,7 @@ export default function AnprEmissiePage() {
   if (!m1) {
     return (
       <div className="max-w-7xl mx-auto space-y-4">
-        <PageHeader title="ANPR Emissie" color={PAGE_COLORS.anprEmissie.bg} description={PAGE_DESCRIPTIONS.anprEmissie} />
+        <PageHeader title="ANPR Emissie" tooltip={PAGE_HELP.anprEmissie} color={PAGE_COLORS.anprEmissie.bg} description={PAGE_DESCRIPTIONS.anprEmissie} />
         <p className="text-sm text-dmi-text/60">Geen ANPR M1-data geladen.</p>
       </div>
     );
@@ -103,10 +103,10 @@ export default function AnprEmissiePage() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-4">
-      <PageHeader title="ANPR Emissie" color={PAGE_COLORS.anprEmissie.bg} description={PAGE_DESCRIPTIONS.anprEmissie} />
+      <PageHeader title="ANPR Emissie" tooltip={PAGE_HELP.anprEmissie} color={PAGE_COLORS.anprEmissie.bg} description={PAGE_DESCRIPTIONS.anprEmissie} />
 
       {/* ─── Emission KPIs ─── */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div data-tour="kpis" className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <KPICard label="Totaal bezoeken" value={formatLargeNumber(totalVisits)} color={DMI_COLORS.primary} tooltip="Totaal aantal bezoeken over alle voertuigcategorieen." />
         <KPICard label="Euro-6 aandeel" value={formatPercentage(euro6Pct, 1)} color={DMI_COLORS.orange} tooltip="Percentage bezoeken door Euro-6 voertuigen." />
         <KPICard label="Zero-emissie aandeel" value={formatPercentage(zeroPct, 1)} color={DMI_COLORS.green} tooltip="Percentage bezoeken door zero-emissievoertuigen." />
@@ -181,11 +181,12 @@ export default function AnprEmissiePage() {
           </div>
         </div>
         <StackedBarAbsolute
+          bare
           title=""
           data={vehicleChartMode === 'abs' ? monthlyByVehicle : monthlyByVehiclePct}
           categoryKey="periode"
           series={vehicleSeries}
-          colors={[...PAGE_COLORS.anprEmissie.chartColors]}
+          colors={[DMI_COLORS.primary, DMI_COLORS.teal, DMI_COLORS.mauve, DMI_COLORS.purple]}
         />
       </Card>
 

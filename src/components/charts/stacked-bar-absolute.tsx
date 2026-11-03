@@ -23,6 +23,8 @@ interface StackedBarAbsoluteProps {
   series: string[];
   colors?: string[];
   layout?: 'horizontal' | 'vertical';
+  /** Render without the card frame, e.g. inside another card */
+  bare?: boolean;
 }
 
 export function StackedBarAbsolute({
@@ -33,11 +35,12 @@ export function StackedBarAbsolute({
   colors = CHART_SERIES_COLORS,
   layout = 'horizontal',
   titleTooltip,
+  bare = false,
 }: StackedBarAbsoluteProps) {
   const isVertical = layout === 'vertical';
 
   return (
-    <Card className="p-4 h-full">
+    <Card className={bare ? 'p-0 border-0 shadow-none bg-transparent gap-0' : 'p-4'}>
       <ChartTitle title={title} tooltip={titleTooltip} />
       <ResponsiveContainer width="100%" height={isVertical ? Math.max(200, data.length * 30 + 60) : 280}>
         <BarChart data={data} layout={isVertical ? 'vertical' : 'horizontal'}>

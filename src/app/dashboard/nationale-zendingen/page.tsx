@@ -7,7 +7,7 @@ import { FilterBar } from '@/components/layout/filter-bar';
 import { KPICard } from '@/components/layout/kpi-card';
 import { HorizontalBarChart } from '@/components/charts/horizontal-bar-chart';
 import { PAGE_COLORS, DMI_COLORS } from '@/lib/colors';
-import { PAGE_DESCRIPTIONS, KPI_TOOLTIPS, CHART_TOOLTIPS } from '@/lib/descriptions';
+import { PAGE_DESCRIPTIONS, KPI_TOOLTIPS, CHART_TOOLTIPS, PAGE_HELP, SECTION_TOOLTIPS } from '@/lib/descriptions';
 import { useNationalZendingen } from '@/hooks/use-filtered-data';
 import { sumKPIs, zendingenPerKlasse } from '@/lib/aggregate';
 import { formatLargeNumber } from '@/lib/format';
@@ -57,6 +57,7 @@ export default function NationaleZendingenPage() {
     <div className="max-w-7xl mx-auto">
       <PageHeader
         title="Nationale zendingen"
+        tooltip={PAGE_HELP.nationaleZendingen}
         color={PAGE_COLORS.nationaleZendingen.bg}
         description={PAGE_DESCRIPTIONS.nationaleZendingen}
       />
@@ -92,12 +93,14 @@ export default function NationaleZendingenPage() {
         <div className="space-y-4">
           <PC4BubbleMap
             title="Aantal zendingen per laadlocatie"
+            titleTooltip={SECTION_TOOLTIPS.pc4LaadZendingen}
             data={laadPC4Data}
             color={DMI_COLORS.primary}
             height={300}
           />
           <PC4BubbleMap
             title="Aantal zendingen per PC4 loslocatie"
+            titleTooltip={SECTION_TOOLTIPS.pc4LosZendingen}
             data={losPC4Data}
             color={DMI_COLORS.primary}
             height={300}

@@ -144,8 +144,15 @@ export function transformDeelritten(
     const laadGeo = resolveGeo(row.laadPC6, row.laadPC4, row.laadNuts3, LaadLand);
     const losGeo = resolveGeo(row.losPC6, row.losPC4, row.losNuts3, LosLand);
 
+    // The 2021/2022 deliveries name this column "EuronormKlasse" (capital E);
+    // without this every trip of those years would count as non-Euro-6.
+    const legacyEuronorm = (row as unknown as Record<string, unknown>).EuronormKlasse;
+    const euronormKlasse =
+      row.euronormKlasse ?? (legacyEuronorm != null ? String(legacyEuronorm) : row.euronormKlasse);
+
     return {
       ...row,
+      euronormKlasse,
       // Ensure numeric fields are actual numbers (CBS sometimes uses Dutch scientific notation)
       brutoGewicht: safeNum(row.brutoGewicht),
       aantalDeelritten: safeNum(row.aantalDeelritten),

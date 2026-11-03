@@ -429,6 +429,22 @@ export const useVesdiStore = create<VesdiStore>()(
       name: 'vesdi-store',
       storage: createJSONStorage(() => idbStorage),
 
+      // v1: copy the legacy "EuronormKlasse" column (2021/2022 deliveries) to
+      // euronormKlasse for data that was stored before transform.ts handled it.
+      version: 1,
+      migrate: (persisted, version) => {
+        const ps = persisted as Partial<PersistedState>;
+        if (version < 1 && ps?.deelrittenByYear) {
+          for (const rows of Object.values(ps.deelrittenByYear)) {
+            for (const r of rows) {
+              const legacy = (r as unknown as Record<string, unknown>).EuronormKlasse;
+              if (r.euronormKlasse == null && legacy != null) r.euronormKlasse = String(legacy);
+            }
+          }
+        }
+        return ps as unknown as VesdiStore;
+      },
+
       // Only persist data fields — skip transient UI state and non-serializable File objects
       partialize: (state) => ({
         zendingenByYear: Object.fromEntries(state.zendingenByYear),

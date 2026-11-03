@@ -10,6 +10,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useVesdiStore } from '@/lib/store';
+import { InfoTip } from '@/components/ui/info-tip';
+import { SECTION_TOOLTIPS } from '@/lib/descriptions';
 
 /** Check if the loaded data has emissiezone columns */
 function useHasEmissiezoneData(): boolean {
@@ -22,6 +24,16 @@ function useHasEmissiezoneData(): boolean {
     }
     return false;
   }, [zendingenByYear]);
+}
+
+/** A filter control with its own (?) tooltip */
+function FilterItem({ tip, children }: { tip: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-1">
+      {children}
+      <InfoTip text={tip} />
+    </div>
+  );
 }
 
 interface FilterBarProps {
@@ -42,92 +54,103 @@ export function FilterBar({
   const showEZ = showEmissiezone && hasEmissiezone;
 
   return (
-    <div className="flex flex-wrap items-center gap-3 mb-6 rounded-lg bg-muted/50 border border-border px-4 py-3">
+    <div data-tour="filters" className="flex flex-wrap items-center gap-3 mb-6 rounded-lg bg-muted/50 border border-border px-4 py-3">
       <span className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground mr-1">
         <SlidersHorizontal className="h-4 w-4" />
         Filters
+        <InfoTip text={SECTION_TOOLTIPS.filterBar} />
       </span>
       {/* Year filter */}
-      <Select
-        value={filters.year ? String(filters.year) : ''}
-        onValueChange={(v) => setFilter('year', Number(v))}
-      >
-        <SelectTrigger className="w-[120px] bg-[#1d3b64] border-[#1d3b64] text-white">
-          <SelectValue placeholder="Jaar" />
-        </SelectTrigger>
-        <SelectContent>
-          {years.map((y) => (
-            <SelectItem key={y} value={String(y)}>
-              {y}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <FilterItem tip={SECTION_TOOLTIPS.filterYear}>
+        <Select
+          value={filters.year ? String(filters.year) : ''}
+          onValueChange={(v) => setFilter('year', Number(v))}
+        >
+          <SelectTrigger className="w-[120px] bg-[#1d3b64] border-[#1d3b64] text-white">
+            <SelectValue placeholder="Jaar" />
+          </SelectTrigger>
+          <SelectContent>
+            {years.map((y) => (
+              <SelectItem key={y} value={String(y)}>
+                {y}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </FilterItem>
 
       {/* Euronorm filter */}
       {showEuronorm && (
-        <Select
-          value={filters.euronorm || 'all'}
-          onValueChange={(v) => setFilter('euronorm', v === 'all' ? null : v)}
-        >
-          <SelectTrigger className="w-[140px] bg-[#1d3b64] border-[#1d3b64] text-white">
-            <SelectValue placeholder="Euronorm" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Alle</SelectItem>
-            <SelectItem value="6">Euro 6</SelectItem>
-            <SelectItem value="0-5">Euro 0-5</SelectItem>
-          </SelectContent>
-        </Select>
+        <FilterItem tip={SECTION_TOOLTIPS.filterEuronorm}>
+          <Select
+            value={filters.euronorm || 'all'}
+            onValueChange={(v) => setFilter('euronorm', v === 'all' ? null : v)}
+          >
+            <SelectTrigger className="w-[190px] bg-[#1d3b64] border-[#1d3b64] text-white">
+              <SelectValue placeholder="Euronorm" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Euronorm: alle</SelectItem>
+              <SelectItem value="6">Euronorm: Euro 6</SelectItem>
+              <SelectItem value="0-5">Euronorm: Euro 0-5</SelectItem>
+            </SelectContent>
+          </Select>
+        </FilterItem>
       )}
 
       {/* Emissiezone laden */}
       {showEZ && (
         <>
-          <Select
-            value={filters.laadEmissiezone || 'all'}
-            onValueChange={(v) => setFilter('laadEmissiezone', v === 'all' ? null : v)}
-          >
-            <SelectTrigger className="w-[180px] bg-[#1d3b64] border-[#1d3b64] text-white">
-              <SelectValue placeholder="Laden emissiezone" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Laden EZ: Alle</SelectItem>
-              <SelectItem value="ja">Ja</SelectItem>
-              <SelectItem value="nee">Nee</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select
-            value={filters.losEmissiezone || 'all'}
-            onValueChange={(v) => setFilter('losEmissiezone', v === 'all' ? null : v)}
-          >
-            <SelectTrigger className="w-[180px] bg-[#1d3b64] border-[#1d3b64] text-white">
-              <SelectValue placeholder="Lossen emissiezone" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Lossen EZ: Alle</SelectItem>
-              <SelectItem value="ja">Ja</SelectItem>
-              <SelectItem value="nee">Nee</SelectItem>
-            </SelectContent>
-          </Select>
+          <FilterItem tip={SECTION_TOOLTIPS.filterLaadEZ}>
+            <Select
+              value={filters.laadEmissiezone || 'all'}
+              onValueChange={(v) => setFilter('laadEmissiezone', v === 'all' ? null : v)}
+            >
+              <SelectTrigger className="w-[180px] bg-[#1d3b64] border-[#1d3b64] text-white">
+                <SelectValue placeholder="Laden emissiezone" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Laden EZ: alle</SelectItem>
+                <SelectItem value="ja">Laden EZ: ja</SelectItem>
+                <SelectItem value="nee">Laden EZ: nee</SelectItem>
+              </SelectContent>
+            </Select>
+          </FilterItem>
+          <FilterItem tip={SECTION_TOOLTIPS.filterLosEZ}>
+            <Select
+              value={filters.losEmissiezone || 'all'}
+              onValueChange={(v) => setFilter('losEmissiezone', v === 'all' ? null : v)}
+            >
+              <SelectTrigger className="w-[180px] bg-[#1d3b64] border-[#1d3b64] text-white">
+                <SelectValue placeholder="Lossen emissiezone" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Lossen EZ: alle</SelectItem>
+                <SelectItem value="ja">Lossen EZ: ja</SelectItem>
+                <SelectItem value="nee">Lossen EZ: nee</SelectItem>
+              </SelectContent>
+            </Select>
+          </FilterItem>
         </>
       )}
 
       {/* Handelsrichting */}
       {showHandelsrichting && (
-        <Select
-          value={filters.handelsrichting || 'all'}
-          onValueChange={(v) => setFilter('handelsrichting', v === 'all' ? null : v)}
-        >
-          <SelectTrigger className="w-[160px] bg-[#1d3b64] border-[#1d3b64] text-white">
-            <SelectValue placeholder="Handelsrichting" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Alle</SelectItem>
-            <SelectItem value="import">Import</SelectItem>
-            <SelectItem value="export">Export</SelectItem>
-          </SelectContent>
-        </Select>
+        <FilterItem tip={SECTION_TOOLTIPS.filterHandelsrichting}>
+          <Select
+            value={filters.handelsrichting || 'all'}
+            onValueChange={(v) => setFilter('handelsrichting', v === 'all' ? null : v)}
+          >
+            <SelectTrigger className="w-[230px] bg-[#1d3b64] border-[#1d3b64] text-white">
+              <SelectValue placeholder="Handelsrichting" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Richting: import + export</SelectItem>
+              <SelectItem value="import">Richting: import</SelectItem>
+              <SelectItem value="export">Richting: export</SelectItem>
+            </SelectContent>
+          </Select>
+        </FilterItem>
       )}
     </div>
   );

@@ -34,7 +34,7 @@ export function StackedBar100({
   titleTooltip,
 }: StackedBar100Props) {
   return (
-    <Card className="p-4 h-full">
+    <Card className="p-4">
       <ChartTitle title={title} tooltip={titleTooltip} />
       <ResponsiveContainer width="100%" height={height}>
         <BarChart data={data} stackOffset="expand">

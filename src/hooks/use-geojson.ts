@@ -5,6 +5,8 @@ import type { FeatureCollection } from 'geojson';
 
 const cache = new Map<string, FeatureCollection>();
 
+type Result = { path: string; data: FeatureCollection | null; error: string | null };
+
 /**
  * Fetch and cache a GeoJSON file from /public/geo/
  */
@@ -13,37 +15,23 @@ export function useGeoJSON(path: string): {
   loading: boolean;
   error: string | null;
 } {
-  const [data, setData] = useState<FeatureCollection | null>(cache.get(path) || null);
-  const [loading, setLoading] = useState(!cache.has(path));
-  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<Result | null>(null);
 
   useEffect(() => {
-    if (cache.has(path)) {
-      setData(cache.get(path)!);
-      setLoading(false);
-      return;
-    }
+    if (cache.has(path)) return;
 
     let cancelled = false;
-    setLoading(true);
-
     fetch(path)
       .then((res) => {
         if (!res.ok) throw new Error(`Failed to load ${path}: ${res.status}`);
         return res.json();
       })
       .then((geojson: FeatureCollection) => {
-        if (!cancelled) {
-          cache.set(path, geojson);
-          setData(geojson);
-          setLoading(false);
-        }
+        cache.set(path, geojson);
+        if (!cancelled) setResult({ path, data: geojson, error: null });
       })
       .catch((err: Error) => {
-        if (!cancelled) {
-          setError(err.message);
-          setLoading(false);
-        }
+        if (!cancelled) setResult({ path, data: null, error: err.message });
       });
 
     return () => {
@@ -51,5 +39,8 @@ export function useGeoJSON(path: string): {
     };
   }, [path]);
 
-  return { data, loading, error };
+  const cached = cache.get(path);
+  if (cached) return { data: cached, loading: false, error: null };
+  if (result?.path === path) return { data: result.data, loading: false, error: result.error };
+  return { data: null, loading: true, error: null };
 }
