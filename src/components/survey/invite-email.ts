@@ -13,9 +13,9 @@ export const DEFAULT_TEMPLATE: EmailTemplate = {
   subject: 'Je mening gevraagd: VESDI-dashboard stadslogistiek',
   body: `Beste {naam},
 
-Namens het DMI Ecosysteem nodig ik je uit om het VESDI-dashboard te bekijken en je mening te geven. Het dashboard laat zien wat CBS-data over goederenvervoer (VESDI) en ANPR-cameradata vertellen over stadslogistiek, met de gemeente Utrecht als voorbeeld.
+Zoals besproken in het DMI Slimme Logistiek voortgangsoverleg nodig ik je uit om het VESDI-dashboard te bekijken en je mening te geven. Het dashboard laat zien wat CBS-data over goederenvervoer (VESDI) en ANPR-cameradata vertellen over stadslogistiek, met de gemeente Utrecht als voorbeeld.
 
-IenW en DMI overwegen om deze CBS-data in te kopen voor 20 à 25 gemeenten. Met een korte enquête (ca. 10 minuten) willen we nagaan of dat echt nodig is: welke informatie heb je voor {gemeente} echt nodig, en zou je gemeente na de eerste drie jaar (betaald door DMI) zelf een contract met het CBS afsluiten?
+IenW/DMI overwegen om deze CBS-data in te kopen voor 20 à 25 gemeenten. Met een korte enquête (ca. 20–30 minuten) willen we nagaan of dat echt nodig is: welke informatie heb je voor {gemeente} echt nodig, en zou je gemeente na de eerste drie jaar (betaald door DMI) zelf een contract met het CBS afsluiten?
 
 Je persoonlijke link (geen wachtwoord nodig):
 {link}
@@ -23,8 +23,6 @@ Je persoonlijke link (geen wachtwoord nodig):
 De link is persoonlijk, dus stuur hem niet door. Via dezelfde link kun je je antwoorden later nog aanpassen.
 
 Alvast hartelijk dank!
-
-Met vriendelijke groet,
 `,
 };
 

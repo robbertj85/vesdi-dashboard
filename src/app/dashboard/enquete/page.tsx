@@ -173,7 +173,7 @@ export default function EnquetePage() {
         <SectionTitle as="h2" title="Waarom deze enquête?" tooltip={SECTION_TOOLTIPS.enqueteWaarom} />
         <div className="text-sm text-dmi-text/80 leading-relaxed space-y-2">
           <p>
-            De VESDI-data in dit dashboard komt van het CBS. IenW en DMI overwegen om deze data in te
+            De VESDI-data in dit dashboard komt van het CBS. IenW/DMI overwegen om deze data in te
             kopen voor <strong>20 à 25 gemeenten</strong>, met een geschatte contractwaarde van
             <strong> ca. € 605.000</strong>. De eerste drie jaar betaalt DMI de levering; daarna beslissen
             gemeenten zelf of ze een contract met het CBS afsluiten. Dat kost naar schatting minimaal
@@ -182,7 +182,7 @@ export default function EnquetePage() {
           <p>
             Met deze enquête inventariseren we of het inkopen van de VESDI-data <strong>echt nodig is, of
             eigenlijk niet</strong>: welke informatie heb je in je werk echt nodig, en zou jouw gemeente na
-            die drie jaar zelf contracteren? Invullen kost ongeveer 10 minuten; je antwoorden worden
+            die drie jaar zelf contracteren? Invullen kost ongeveer 20–30 minuten; je antwoorden worden
             tussentijds in deze browser bewaard.
           </p>
         </div>
