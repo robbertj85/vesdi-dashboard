@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { CheckCircle2, ClipboardCheck, Eye, Loader2, Send, UserRound } from 'lucide-react';
+import { CheckCircle2, ClipboardCheck, Eye, GraduationCap, Loader2, Send, UserRound } from 'lucide-react';
+import { useTour } from '@/components/tour/tour-provider';
 import { PageHeader } from '@/components/layout/page-header';
 import { Card } from '@/components/ui/card';
 import { SectionTitle } from '@/components/ui/info-tip';
@@ -38,6 +39,7 @@ interface InviteInfo {
   naam: string;
   gemeente: string;
   email: string;
+  tourCompletedAt?: string | null;
 }
 
 export default function EnquetePage() {
@@ -47,6 +49,10 @@ export default function EnquetePage() {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
+  const tour = useTour();
+  const [skipTour, setSkipTour] = useState(false);
+  // Done in this browser, or recorded on the invite (e.g. from another device)
+  const tourDone = tour.completed || Boolean(invite?.tourCompletedAt);
 
   // Personal invite link? Then identity is known and earlier answers can be edited.
   useEffect(() => {
@@ -247,6 +253,43 @@ export default function EnquetePage() {
           </select>
         </label>
       </Card>
+
+      {/* Suggest the guided tour before rating, so respondents know what they judge */}
+      {!tourDone && !skipTour && (
+        <Card className="p-5 gap-3 border-2 border-dmi-gold bg-dmi-gold/10">
+          <div className="flex items-start gap-3">
+            <GraduationCap className="w-6 h-6 text-dmi-gold shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <h2 className="font-condensed font-bold text-dmi-primary">Eerst even rondkijken?</h2>
+              <p className="text-sm text-dmi-text/80 leading-relaxed">
+                Doe eerst de rondleiding van ongeveer twee minuten: dan weet je wat je straks beoordeelt.
+                Daarna kom je vanzelf hier terug. Wat je al hebt ingevuld, blijft bewaard.
+              </p>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2 pl-9">
+            <button
+              type="button"
+              onClick={() => tour.start({ returnTo: '/dashboard/enquete' })}
+              className="flex items-center gap-2 rounded-lg bg-dmi-primary px-4 py-2 text-sm font-semibold text-white hover:bg-dmi-primary/90"
+            >
+              <GraduationCap className="w-4 h-4" /> Start de rondleiding
+            </button>
+            <button
+              type="button"
+              onClick={() => setSkipTour(true)}
+              className="rounded-lg px-3 py-2 text-sm font-medium text-dmi-primary/70 hover:text-dmi-primary"
+            >
+              Overslaan
+            </button>
+          </div>
+        </Card>
+      )}
+      {tourDone && (
+        <p className="flex items-center gap-1.5 text-xs text-dmi-text/60 -my-2 pl-1">
+          <CheckCircle2 className="w-3.5 h-3.5 text-dmi-green" /> Je hebt de rondleiding gedaan.
+        </p>
+      )}
 
       {/* 2. Ratings */}
       <Card className="p-6 gap-4">

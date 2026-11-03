@@ -207,7 +207,7 @@ export default function IntroductiePage() {
         <div className="space-y-4">
           <button
             type="button"
-            onClick={tour.start}
+            onClick={() => tour.start()}
             className="w-full text-left rounded-xl border-2 border-dmi-gold bg-dmi-gold/10 hover:bg-dmi-gold/20 transition-colors p-4 flex items-start gap-3"
           >
             <GraduationCap className="w-6 h-6 text-dmi-gold shrink-0 mt-0.5" />

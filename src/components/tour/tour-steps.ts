@@ -1,7 +1,8 @@
 /**
  * Steps of the interactive walkthrough ("Rondleiding").
  *
- * - `page`: route the step lives on; the tour navigates there first.
+ * - `page`: route the step lives on (may include a query string, e.g. preset
+ *   page settings); the tour navigates there first.
  * - `target`: value of a `data-tour="…"` attribute to spotlight. Omit for a
  *   centred card. If the element does not appear (e.g. no data for it), the
  *   step falls back to a centred card.
@@ -85,11 +86,11 @@ export const TOUR_STEPS: TourStep[] = [
   },
   {
     id: 'routekaart',
-    page: '/dashboard/routekaart',
-    target: 'route-controls',
+    page: '/dashboard/routekaart?routes=5000',
+    target: 'route-map',
     title: 'Routekaart',
     body:
-      'De meest voorkomende herkomst-bestemmingsparen, getekend als waarschijnlijke route over het wegennet. Hoe donkerder de lijn, hoe meer deelritten. Klik op een route voor Euronorm en goederensoort.',
+      'De 5.000 meest voorkomende herkomst-bestemmingsparen, getekend als waarschijnlijke route over het wegennet (vooraf berekend). Hoe donkerder de lijn, hoe meer deelritten. Na de rondleiding kun je zelf het aantal routes kiezen en op een route klikken voor Euronorm en goederensoort.',
     requires: 'vesdi',
   },
   {

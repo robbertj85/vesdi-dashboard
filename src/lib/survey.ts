@@ -117,6 +117,8 @@ export interface SurveyInvite {
   createdAt: string;
   /** When the invitation e-mail was last composed from the admin page */
   mailedAt?: string | null;
+  /** When this respondent finished the guided tour (Rondleiding) */
+  tourCompletedAt?: string | null;
 }
 
 export function emptyAnswers(): SurveyAnswers {
@@ -213,7 +215,14 @@ export interface SurveySummary {
     rated: number;
     average: number | null;
     comments: string[];
+    /** Average visible seconds per respondent spent evaluating this item (walk-through) */
+    avgSeconds: number | null;
+    timedRespondents: number;
   }[];
+  /** Average visible seconds per respondent on each tour step */
+  tourSteps: { id: string; title: string; avgSeconds: number | null; respondents: number }[];
+  /** Invited respondents who completed the tour */
+  tourCompleted: number;
   contract: { value: string; label: string; count: number }[];
   cameras: { value: string; label: string; count: number }[];
   anprKans: { distribution: number[]; average: number | null; rated: number };

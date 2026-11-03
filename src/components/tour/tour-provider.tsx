@@ -7,6 +7,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { ChevronLeft, ChevronRight, ClipboardCheck, GraduationCap, X } from 'lucide-react';
 import { useVesdiStore } from '@/lib/store';
 import { cn } from '@/lib/utils';
+import { withBase } from '@/lib/base-path';
+import { useVisibleTime } from '@/hooks/use-visible-time';
 import { TOUR_STEPS, type TourStep } from './tour-steps';
 
 const SEEN_KEY = 'vesdi-tour-seen';
@@ -32,9 +34,36 @@ function writeSeen() {
   }
 }
 
+const COMPLETED_KEY = 'vesdi-tour-completed';
+
+function readCompleted(): boolean {
+  try {
+    return localStorage.getItem(COMPLETED_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+/** Remember locally and log on the server (recorded on the respondent's invite). */
+function recordCompleted() {
+  try {
+    localStorage.setItem(COMPLETED_KEY, '1');
+  } catch {
+    // storage unavailable
+  }
+  fetch(withBase('/api/survey/tour'), { method: 'POST' }).catch(() => {});
+}
+
+interface StartOptions {
+  /** Page to return to when the tour ends or is closed (e.g. the questionnaire) */
+  returnTo?: string;
+}
+
 interface TourContextValue {
-  start: () => void;
+  start: (options?: StartOptions) => void;
   active: boolean;
+  /** The tour was completed to the last step in this browser */
+  completed: boolean;
 }
 
 const TourContext = createContext<TourContextValue | null>(null);
@@ -67,15 +96,34 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
   const [index, setIndex] = useState<number | null>(null);
   const step: TourStep | null = index !== null ? steps[index] ?? null : null;
 
-  const start = useCallback(() => setIndex(0), []);
-  const close = useCallback(() => {
-    writeSeen();
-    setIndex(null);
+  // Client-only provider (the dashboard renders after IndexedDB hydration)
+  const [completed, setCompleted] = useState(readCompleted);
+  const returnTo = useRef<string | null>(null);
+
+  const start = useCallback((options?: StartOptions) => {
+    returnTo.current = options?.returnTo ?? null;
+    setIndex(0);
   }, []);
-  const next = useCallback(
-    () => setIndex((i) => (i === null ? null : i + 1 < steps.length ? i + 1 : (writeSeen(), null))),
-    [steps.length]
+  const end = useCallback(
+    (finished: boolean) => {
+      writeSeen();
+      if (finished) {
+        recordCompleted();
+        setCompleted(true);
+      }
+      setIndex(null);
+      const back = returnTo.current;
+      returnTo.current = null;
+      if (back) router.push(back);
+    },
+    [router]
   );
+  const close = useCallback(() => end(false), [end]);
+  const next = useCallback(() => {
+    if (index === null) return;
+    if (index + 1 < steps.length) setIndex(index + 1);
+    else end(true);
+  }, [index, steps.length, end]);
   const prev = useCallback(() => setIndex((i) => (i === null || i === 0 ? i : i - 1)), []);
 
   // Offer the tour automatically on the first visit to the cover page
@@ -85,12 +133,13 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
     return () => clearTimeout(t);
   }, [pathname]);
 
-  // Bring the user to the page the step is about
+  // Bring the user to the page the step is about (step.page may carry a query string)
+  const stepPath = step?.page?.split('?')[0];
   useEffect(() => {
-    if (step?.page && step.page !== pathname) router.push(step.page);
-  }, [step, pathname, router]);
+    if (step?.page && stepPath !== pathname) router.push(step.page);
+  }, [step, stepPath, pathname, router]);
 
-  const value = useMemo(() => ({ start, active: step !== null }), [start, step]);
+  const value = useMemo(() => ({ start, active: step !== null, completed }), [start, step, completed]);
 
   return (
     <TourContext.Provider value={value}>
@@ -101,7 +150,7 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
           step={step}
           index={index}
           total={steps.length}
-          onPage={!step.page || step.page === pathname}
+          onPage={!step.page || stepPath === pathname}
           onNext={next}
           onPrev={prev}
           onClose={close}
@@ -122,6 +171,8 @@ interface TourOverlayProps {
 }
 
 function TourOverlay({ step, index, total, onPage, onNext, onPrev, onClose }: TourOverlayProps) {
+  // Mounted once per step (keyed by step id): measures time on this step
+  useVisibleTime('tour', step.id);
   const [placement, setPlacement] = useState<Placement | null>(null);
   const [cardHeight, setCardHeight] = useState(240);
   const [viewport, setViewport] = useState({ w: 1280, h: 800 });

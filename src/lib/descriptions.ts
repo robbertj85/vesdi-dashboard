@@ -274,6 +274,8 @@ export const SECTION_TOOLTIPS = {
     'Alles wat je verder kwijt wilt: ontbrekende informatie, verbeterpunten of vragen.',
   resultatenOverzicht:
     'Gemiddelde waardering per onderdeel (1–5) en de verdeling van de antwoorden. n = aantal respondenten dat een cijfer gaf; n.v.t.-antwoorden tellen niet mee in het gemiddelde.',
+  resultatenTijd:
+    'Gemiddelde zichtbare tijd per uitgenodigde respondent op elke stap van de rondleiding (m:ss). Tijd met het tabblad op de achtergrond telt niet mee; beheerders worden niet gemeten.',
   resultatenUitnodigingen:
     'Maak per respondent een persoonlijke link aan. De link logt in zonder wachtwoord, vult naam en gemeente in en zorgt dat er per persoon één antwoord telt.',
   introNav:

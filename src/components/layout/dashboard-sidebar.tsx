@@ -43,7 +43,6 @@ import { withBase } from '@/lib/base-path';
 const GENERAL_NAV_ITEMS = [
   { href: '/dashboard/voorblad', icon: Home, label: 'Voorblad', desc: 'Titelpagina en samenvatting', color: DMI_COLORS.orange },
   { href: '/dashboard/introductie', icon: Info, label: 'Introductie', desc: 'Uitleg dashboard en navigatie', color: DMI_COLORS.primary },
-  { href: '/dashboard/enquete', icon: ClipboardCheck, label: 'Enquête', desc: 'Geef je oordeel over de waarde', color: DMI_COLORS.gold },
 ];
 
 const WVE_NAV_ITEMS = [
@@ -209,13 +208,13 @@ export function DashboardSidebar() {
         {SYSTEM_NAV_ITEMS.map((item) => renderNavItem(item, pathname, expanded))}
       </nav>
 
-      {/* Guided tour */}
-      <div className={cn('mt-2', expanded ? 'px-2' : 'flex justify-center')}>
+      {/* Guided tour + questionnaire: kept apart from the dashboard pages, in gold */}
+      <div className={cn('mt-2 flex flex-col gap-0.5', expanded ? 'px-2' : 'items-center')}>
         <Tooltip>
           <TooltipTrigger asChild>
             <button
               type="button"
-              onClick={tour.start}
+              onClick={() => tour.start()}
               className={cn(
                 'flex items-center rounded-lg text-dmi-gold hover:text-white hover:bg-white/10 transition-colors',
                 expanded ? 'w-full gap-2.5 px-2.5 py-2' : 'w-10 h-10 justify-center'
@@ -227,6 +226,26 @@ export function DashboardSidebar() {
           </TooltipTrigger>
           <TooltipContent side="right" className="max-w-[240px]">
             Interactieve rondleiding langs de belangrijkste onderdelen van het dashboard
+          </TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Link
+              href="/dashboard/enquete"
+              className={cn(
+                'flex items-center rounded-lg transition-colors',
+                expanded ? 'w-full gap-2.5 px-2.5 py-2' : 'w-10 h-10 justify-center',
+                pathname.startsWith('/dashboard/enquete')
+                  ? 'text-white bg-dmi-gold/25'
+                  : 'text-dmi-gold hover:text-white hover:bg-white/10'
+              )}
+            >
+              <ClipboardCheck className="w-5 h-5 shrink-0" />
+              {expanded && <span className="text-sm font-medium">Enquête</span>}
+            </Link>
+          </TooltipTrigger>
+          <TooltipContent side="right" className="max-w-[240px]">
+            Geef je oordeel: hoe waardevol is deze informatie voor jouw gemeente?
           </TooltipContent>
         </Tooltip>
       </div>

@@ -106,7 +106,7 @@ export default function VoorbladPage() {
       <div className="flex flex-col sm:flex-row gap-3">
         <button
           type="button"
-          onClick={tour.start}
+          onClick={() => tour.start()}
           className="flex-1 flex items-center justify-center gap-2 rounded-xl border-2 border-dmi-gold bg-dmi-gold/10 hover:bg-dmi-gold/20 transition-colors px-5 py-3 font-semibold text-dmi-primary"
         >
           <GraduationCap className="w-5 h-5 text-dmi-gold" />

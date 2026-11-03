@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | URL | https://prototype.transportlab.app/vesdi-dashboard |
-| Coolify | resource `vesdi-dashboard`, uuid `wxw1wl079wdzr9rpfc4wm75u` (Docker Compose, `/docker-compose.yaml`), project Coolify-TB / production, branch `feature/utrecht-demo-auth-tour`, *Domains leeg* |
+| Coolify | resource `vesdi-dashboard`, uuid `wxw1wl079wdzr9rpfc4wm75u` (Docker Compose, `/docker-compose.yaml`), project Coolify-TB / production, branch `main`, *Domains leeg* |
 | Container | `vesdi-dashboard-vesdi-dashboard` (Consistent Container Names aan, Custom Internal Name `vesdi-dashboard`) |
 | NPM | proxy host `prototype.transportlab.app` → custom location `/vesdi-dashboard/` → `http` `vesdi-dashboard` `3000` (geen URI-rewrite) |
 

@@ -15,6 +15,7 @@ import {
   type SurveyItem,
 } from '@/lib/survey';
 import { ScaleInput } from './choice-inputs';
+import { useVisibleTime } from '@/hooks/use-visible-time';
 
 const DRAFT_KEY = 'vesdi-survey-draft';
 export const SURVEY_PAGE = '/dashboard/enquete';
@@ -187,6 +188,8 @@ interface SurveyPanelProps {
  * (if any) gets a gold outline.
  */
 function SurveyPanel({ item, index, total, onPage, rating, ratedCount, onRate, onPrev, onNext, onClose }: SurveyPanelProps) {
+  // Mounted once per item (keyed by item id): measures time spent evaluating it
+  useVisibleTime('survey', item.id);
   const [collapsed, setCollapsed] = useState(false);
   const [showComment, setShowComment] = useState(Boolean(rating?.comment));
   const [outline, setOutline] = useState<{ top: number; left: number; width: number; height: number } | null>(null);

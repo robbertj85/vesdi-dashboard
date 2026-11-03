@@ -32,8 +32,18 @@ interface InviteRow {
   email: string;
   createdAt: string;
   mailedAt: string | null;
+  tourCompletedAt: string | null;
+  tourSeconds: number;
+  surveySeconds: number;
   link: string;
   respondedAt: string | null;
+}
+
+/** 125 → "2:05" */
+function fmtDuration(seconds: number | null | undefined): string {
+  if (seconds == null) return '–';
+  const m = Math.floor(seconds / 60);
+  return `${m}:${String(seconds % 60).padStart(2, '0')}`;
 }
 
 function readKey(): string {
@@ -212,7 +222,8 @@ export default function EnqueteResultatenPage() {
               <th className="py-2 font-medium">Onderdeel</th>
               <th className="py-2 font-medium text-right w-16">Gem.</th>
               <th className="py-2 font-medium text-right w-12">n</th>
-              <th className="py-2 font-medium pl-4 w-[40%]">Verdeling</th>
+              <th className="py-2 font-medium text-right w-16" title="Gemiddelde tijd per respondent bij dit onderdeel tijdens het beoordelen (m:ss)">Tijd</th>
+              <th className="py-2 font-medium pl-4 w-[36%]">Verdeling</th>
             </tr>
           </thead>
           <tbody>
@@ -240,6 +251,9 @@ export default function EnqueteResultatenPage() {
                     {item.rated}
                     {item.nvt > 0 && <span className="block text-[10px]">+{item.nvt} n.v.t.</span>}
                   </td>
+                  <td className="py-2.5 text-right text-dmi-text/60 tabular-nums" title={item.timedRespondents ? `gemiddeld over ${item.timedRespondents} respondent(en)` : undefined}>
+                    {fmtDuration(item.avgSeconds)}
+                  </td>
                   <td className="py-2.5 pl-4">
                     <LikertBar distribution={item.distribution} />
                   </td>
@@ -262,6 +276,33 @@ export default function EnqueteResultatenPage() {
           <CountBars rows={[...summary.belemmeringen].sort((a, b) => b.count - a.count)} />
         </Card>
       </div>
+
+      <Card className="p-6 gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <SectionTitle as="h2" title="Rondleiding: tijd per stap" tooltip={SECTION_TOOLTIPS.resultatenTijd} />
+          <span className="text-sm text-dmi-text/60">
+            {summary.tourCompleted} van {invites.length} uitgenodigden voltooide de rondleiding
+          </span>
+        </div>
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-left text-xs text-dmi-text/50 border-b border-dmi-primary/10">
+              <th className="py-2 font-medium">Stap</th>
+              <th className="py-2 font-medium text-right w-24">Gem. tijd</th>
+              <th className="py-2 font-medium text-right w-24">Respondenten</th>
+            </tr>
+          </thead>
+          <tbody>
+            {summary.tourSteps.map((t) => (
+              <tr key={t.id} className="border-b border-dmi-primary/5">
+                <td className="py-2 text-dmi-text">{t.title}</td>
+                <td className="py-2 text-right tabular-nums">{fmtDuration(t.avgSeconds)}</td>
+                <td className="py-2 text-right tabular-nums text-dmi-text/60">{t.respondents}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Card>
 
       <Card className="p-6 gap-3">
         <h2 className="text-lg font-bold text-dmi-primary">Respondenten</h2>
@@ -574,6 +615,11 @@ function InvitesCard({
                     <span className="text-dmi-primary/80">gemaild {new Date(i.mailedAt).toLocaleDateString('nl-NL')}</span>
                   ) : (
                     <span className="text-dmi-text/50">nog niet gemaild</span>
+                  )}
+                  {(i.tourCompletedAt || i.tourSeconds > 0 || i.surveySeconds > 0) && (
+                    <span className="block text-dmi-text/50 mt-0.5">
+                      {i.tourCompletedAt ? 'rondleiding ✓' : 'rondleiding –'} · tijd {fmtDuration(i.tourSeconds)} rondleiding, {fmtDuration(i.surveySeconds)} beoordelen
+                    </span>
                   )}
                 </td>
                 <td className="py-2">

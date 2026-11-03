@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
 
   const previous = (await readResponses()).find((r) => r.inviteId === invite.id) ?? null;
   return NextResponse.json({
-    invite: { naam: invite.naam, gemeente: invite.gemeente, email: invite.email },
+    invite: { naam: invite.naam, gemeente: invite.gemeente, email: invite.email, tourCompletedAt: invite.tourCompletedAt ?? null },
     previous,
   });
 }

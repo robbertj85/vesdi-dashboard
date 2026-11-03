@@ -10,12 +10,32 @@ import {
   type StoredResponse,
   type SurveySummary,
 } from '@/lib/survey';
-import { checkAdminKey, readResponses } from '@/lib/survey-store';
+import { checkAdminKey, readActivity, readInvites, readResponses, type ActivityEvent } from '@/lib/survey-store';
+import { TOUR_STEPS } from '@/components/tour/tour-steps';
 
 export const dynamic = 'force-dynamic';
 
 
-function summarize(responses: StoredResponse[]): SurveySummary {
+/** Total visible ms per step per invite: Map<kind|step, Map<inviteId, ms>> */
+function timeByStep(activity: ActivityEvent[]): Map<string, Map<string, number>> {
+  const out = new Map<string, Map<string, number>>();
+  for (const a of activity) {
+    const key = `${a.kind}|${a.step}`;
+    const perInvite = out.get(key) ?? new Map<string, number>();
+    perInvite.set(a.inviteId, (perInvite.get(a.inviteId) ?? 0) + a.ms);
+    out.set(key, perInvite);
+  }
+  return out;
+}
+
+function avgSeconds(perInvite: Map<string, number> | undefined): { avgSeconds: number | null; n: number } {
+  if (!perInvite || perInvite.size === 0) return { avgSeconds: null, n: 0 };
+  const total = [...perInvite.values()].reduce((s, v) => s + v, 0);
+  return { avgSeconds: Math.round(total / perInvite.size / 1000), n: perInvite.size };
+}
+
+function summarize(responses: StoredResponse[], activity: ActivityEvent[], tourCompleted: number): SurveySummary {
+  const times = timeByStep(activity);
   const countBy = <T extends { value: string; label: string }>(options: readonly T[], pick: (r: StoredResponse) => string | null | string[]) =>
     options.map((o) => ({
       value: o.value,
@@ -47,7 +67,8 @@ function summarize(responses: StoredResponse[]): SurveySummary {
     }
     const rated = distribution.reduce((s, c) => s + c, 0);
     const average = rated > 0 ? distribution.reduce((s, c, i) => s + c * (i + 1), 0) / rated : null;
-    return { id: item.id, title: item.title, page: item.page, distribution, nvt, rated, average, comments };
+    const t = avgSeconds(times.get(`survey|${item.id}`));
+    return { id: item.id, title: item.title, page: item.page, distribution, nvt, rated, average, comments, avgSeconds: t.avgSeconds, timedRespondents: t.n };
   });
 
   const kansDist = [0, 0, 0, 0, 0];
@@ -68,11 +89,22 @@ function summarize(responses: StoredResponse[]): SurveySummary {
     },
     belemmeringen: countBy(BELEMMERINGEN, (r) => r.anpr.belemmeringen),
     anonymous: responses.filter((r) => !r.inviteId).length,
+    tourSteps: TOUR_STEPS.map((step) => {
+      const t = avgSeconds(times.get(`tour|${step.id}`));
+      return { id: step.id, title: step.title, avgSeconds: t.avgSeconds, respondents: t.n };
+    }),
+    tourCompleted,
   };
 }
 
 /** Semicolon-separated with BOM, so Dutch Excel opens it correctly. */
-function toCsv(responses: StoredResponse[]): string {
+function toCsv(responses: StoredResponse[], tourDone: Map<string, string>, activity: ActivityEvent[]): string {
+  // Visible seconds per invite: overall per kind and per survey item
+  const secs = new Map<string, number>();
+  for (const a of activity) {
+    for (const k of [`${a.inviteId}|${a.kind}`, `${a.inviteId}|${a.kind}|${a.step}`]) secs.set(k, (secs.get(k) ?? 0) + a.ms);
+  }
+  const s = (k: string) => (secs.has(k) ? Math.round(secs.get(k)! / 1000) : '');
   const cell = (v: unknown) => {
     const s = v === null || v === undefined ? '' : String(v);
     return /[;"\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
@@ -80,17 +112,18 @@ function toCsv(responses: StoredResponse[]): string {
   const label = (opts: readonly { value: string | number; label: string }[], v: unknown) =>
     opts.find((o) => o.value === v)?.label ?? (v ?? '');
   const header = [
-    'id', 'ingediend', 'via_uitnodiging', 'naam', 'gemeente', 'functie', 'email',
+    'id', 'ingediend', 'via_uitnodiging', 'rondleiding_voltooid', 'rondleiding_seconden', 'enquete_seconden', 'naam', 'gemeente', 'functie', 'email',
     'contract_intentie', 'contract_toelichting',
     'anpr_cameras', 'anpr_kans', 'anpr_belemmeringen', 'anpr_toelichting', 'opmerkingen',
-    ...SURVEY_ITEMS.flatMap((i) => [`${i.id}_score`, `${i.id}_toelichting`]),
+    ...SURVEY_ITEMS.flatMap((i) => [`${i.id}_score`, `${i.id}_toelichting`, `${i.id}_seconden`]),
   ];
   const rows = responses.map((r) => [
-    r.id, r.submittedAt, r.inviteId ? 'ja' : 'nee', r.respondent.naam ?? '', r.respondent.gemeente, label(FUNCTIES, r.respondent.functie), r.respondent.email,
+    r.id, r.submittedAt, r.inviteId ? 'ja' : 'nee', r.inviteId ? (tourDone.get(r.inviteId) ?? 'nee') : '',
+    r.inviteId ? s(`${r.inviteId}|tour`) : '', r.inviteId ? s(`${r.inviteId}|survey`) : '', r.respondent.naam ?? '', r.respondent.gemeente, label(FUNCTIES, r.respondent.functie), r.respondent.email,
     label(CONTRACT_OPTIONS, r.contract.intentie), r.contract.toelichting,
     label(CAMERA_OPTIONS, r.anpr.cameras), r.anpr.kans ? `${r.anpr.kans} (${label(ANPR_KANS_SCALE, r.anpr.kans)})` : '',
     r.anpr.belemmeringen.map((b) => label(BELEMMERINGEN, b)).join(', '), r.anpr.toelichting, r.opmerkingen,
-    ...SURVEY_ITEMS.flatMap((i) => [r.ratings[i.id]?.score ?? '', r.ratings[i.id]?.comment ?? '']),
+    ...SURVEY_ITEMS.flatMap((i) => [r.ratings[i.id]?.score ?? '', r.ratings[i.id]?.comment ?? '', r.inviteId ? s(`${r.inviteId}|survey|${i.id}`) : '']),
   ]);
   return '﻿' + [header, ...rows].map((row) => row.map(cell).join(';')).join('\r\n');
 }
@@ -109,9 +142,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Onjuiste beheerderssleutel' }, { status: 403 });
   }
 
-  const responses = await readResponses();
+  const [responses, invites, activity] = await Promise.all([readResponses(), readInvites(), readActivity()]);
+  const tourDone = new Map(invites.filter((i) => i.tourCompletedAt).map((i) => [i.id, i.tourCompletedAt as string]));
   if (request.nextUrl.searchParams.get('format') === 'csv') {
-    return new NextResponse(toCsv(responses), {
+    return new NextResponse(toCsv(responses, tourDone, activity), {
       headers: {
         'Content-Type': 'text/csv; charset=utf-8',
         'Content-Disposition': `attachment; filename="vesdi-enquete-${new Date().toISOString().slice(0, 10)}.csv"`,
@@ -119,5 +153,5 @@ export async function GET(request: NextRequest) {
       },
     });
   }
-  return NextResponse.json(summarize(responses), { headers: { 'Cache-Control': 'no-store' } });
+  return NextResponse.json(summarize(responses, activity, tourDone.size), { headers: { 'Cache-Control': 'no-store' } });
 }

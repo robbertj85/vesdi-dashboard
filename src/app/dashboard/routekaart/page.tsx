@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { Suspense, useState, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { PageHeader } from '@/components/layout/page-header';
 import { SectionTitle } from '@/components/ui/info-tip';
 import { DataSourceFooter } from '@/components/layout/data-source-footer';
@@ -27,8 +28,28 @@ const ROUTE_OPTIONS = [
 ];
 
 export default function RoutekaartPage() {
+  // useSearchParams needs a Suspense boundary in the App Router
+  return (
+    <Suspense>
+      <RoutekaartContent />
+    </Suspense>
+  );
+}
+
+function RoutekaartContent() {
   const [legendBuckets, setLegendBuckets] = useState(buildLegendBuckets(0));
   const [maxRoutes, setMaxRoutes] = useState(200);
+
+  // ?routes=5000 (used by the tour, where nothing can be clicked) presets the
+  // number of routes; all trajectories are precomputed, so this only loads.
+  const routesParam = useSearchParams().get('routes');
+  const [appliedParam, setAppliedParam] = useState<string | null>(null);
+  if (routesParam && routesParam !== appliedParam) {
+    // Adjusting state while rendering (React's pattern for props→state sync)
+    setAppliedParam(routesParam);
+    const n = routesParam === 'alles' ? 0 : Number(routesParam);
+    if (ROUTE_OPTIONS.some((o) => o.value === n)) setMaxRoutes(n);
+  }
   // Trajectories are precomputed server-side (npm run routes:precompute), so show them by default
   const [useTrajectories, setUseTrajectories] = useState(true);
   const [totalPairs, setTotalPairs] = useState(0);

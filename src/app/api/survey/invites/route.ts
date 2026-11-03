@@ -8,6 +8,7 @@ import {
   importRecipients,
   markInviteMailed,
   readInvites,
+  readActivity,
   readResponses,
   recipientsFile,
 } from '@/lib/survey-store';
@@ -38,7 +39,9 @@ async function guard(request: NextRequest): Promise<NextResponse | null> {
 export async function GET(request: NextRequest) {
   const denied = await guard(request);
   if (denied) return denied;
-  const [invites, responses] = await Promise.all([readInvites(), readResponses()]);
+  const [invites, responses, activity] = await Promise.all([readInvites(), readResponses(), readActivity()]);
+  const seconds = (id: string, kind: 'tour' | 'survey') =>
+    Math.round(activity.filter((a) => a.inviteId === id && a.kind === kind).reduce((s, a) => s + a.ms, 0) / 1000);
   const origin = publicOrigin(request);
   return NextResponse.json(
     invites.map((i) => {
@@ -50,6 +53,9 @@ export async function GET(request: NextRequest) {
         email: i.email,
         createdAt: i.createdAt,
         mailedAt: i.mailedAt ?? null,
+        tourCompletedAt: i.tourCompletedAt ?? null,
+        tourSeconds: seconds(i.id, 'tour'),
+        surveySeconds: seconds(i.id, 'survey'),
         link: `${origin}/uitnodiging/${i.code}`,
         respondedAt: response?.submittedAt ?? null,
       };

@@ -132,6 +132,15 @@ export async function findInviteById(id: string | undefined): Promise<SurveyInvi
   return (await readInvites()).find((i) => i.id === id) ?? null;
 }
 
+export async function markInviteTourCompleted(id: string): Promise<boolean> {
+  const invites = await readInvites();
+  const invite = invites.find((i) => i.id === id);
+  if (!invite) return false;
+  invite.tourCompletedAt = new Date().toISOString();
+  await writeInvites(invites);
+  return true;
+}
+
 export async function markInviteMailed(id: string): Promise<boolean> {
   const invites = await readInvites();
   const invite = invites.find((i) => i.id === id);
@@ -208,4 +217,47 @@ export async function importRecipients(): Promise<RecipientImportResult | null> 
 
   if (result.created > 0) await writeInvites(invites);
   return result;
+}
+
+// ─── Time spent per tour step / survey item (invited respondents only) ───
+
+export type ActivityKind = 'tour' | 'survey';
+
+export interface ActivityEvent {
+  inviteId: string;
+  kind: ActivityKind;
+  /** Tour step id or survey item id */
+  step: string;
+  /** Visible time on that step, in milliseconds */
+  ms: number;
+  at: string;
+}
+
+function activityFile(): string {
+  return path.join(/*turbopackIgnore: true*/ surveyDir(), 'activity.jsonl');
+}
+
+export async function appendActivity(e: Omit<ActivityEvent, 'at'>): Promise<void> {
+  const file = activityFile();
+  await mkdir(/*turbopackIgnore: true*/ path.dirname(file), { recursive: true });
+  await appendFile(/*turbopackIgnore: true*/ file, JSON.stringify({ ...e, at: new Date().toISOString() }) + '\n', 'utf8');
+}
+
+export async function readActivity(): Promise<ActivityEvent[]> {
+  let text: string;
+  try {
+    text = await readFile(/*turbopackIgnore: true*/ activityFile(), 'utf8');
+  } catch {
+    return [];
+  }
+  const out: ActivityEvent[] = [];
+  for (const line of text.split('\n')) {
+    if (!line.trim()) continue;
+    try {
+      out.push(JSON.parse(line));
+    } catch {
+      // skip a corrupt line
+    }
+  }
+  return out;
 }
