@@ -195,7 +195,7 @@ export default function EnquetePage() {
           <div className="flex items-center gap-3 rounded-lg bg-dmi-primary/5 px-4 py-3">
             <UserRound className="w-5 h-5 text-dmi-primary" />
             <p className="text-sm text-dmi-text">
-              Je vult de enquête in als <strong>{invite.naam}</strong>, gemeente <strong>{invite.gemeente}</strong>
+              Je vult de enquête in als <strong>{invite.naam}</strong>, namens <strong>{invite.gemeente}</strong>
               <span className="text-dmi-text/50"> (via je persoonlijke uitnodiging)</span>
             </p>
           </div>

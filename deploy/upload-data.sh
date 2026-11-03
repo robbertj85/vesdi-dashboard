@@ -5,7 +5,8 @@
 #
 #   deploy/upload-data.sh demo        # demo-data/utrecht/*  -> vesdi-demo-data
 #   deploy/upload-data.sh routes      # data/routes/routes.jsonl -> vesdi-routes
-#   deploy/upload-data.sh ontvangers  # data/survey/ontvangers.csv -> vesdi-survey
+#   deploy/upload-data.sh ontvangers [bestand]  # CSV naam;gemeente;email (standaard
+#                                               # data/survey/ontvangers.csv) -> vesdi-survey
 #
 # Bestaande bestanden met dezelfde naam worden overschreven; andere blijven staan.
 # Na `routes` herstart de container niet: de server leest nieuwe regels zelf in.
@@ -29,7 +30,10 @@ case "${1:-}" in
     [ -f data/routes/routes.jsonl ] || { echo "data/routes/routes.jsonl ontbreekt: draai eerst npm run routes:precompute" >&2; exit 1; }
     send data/routes /srv/vesdi/routes routes.jsonl ;;
   ontvangers)
-    [ -f data/survey/ontvangers.csv ] || { echo "data/survey/ontvangers.csv ontbreekt" >&2; exit 1; }
-    send data/survey /srv/vesdi/survey ontvangers.csv ;;
-  *) sed -n '2,10p' "$0" >&2; exit 2 ;;
+    f="${2:-data/survey/ontvangers.csv}"
+    [ -f "$f" ] || { echo "$f ontbreekt" >&2; exit 1; }
+    # Always lands as ontvangers.csv, which the import on the results page reads
+    ssh "$HOST" "docker exec -i -u node $CONTAINER sh -c 'cat > /srv/vesdi/survey/ontvangers.csv'" < "$f"
+    echo "geüpload: $(($(grep -c '' "$f") - 1)) regels (excl. kop) -> /srv/vesdi/survey/ontvangers.csv" ;;
+  *) sed -n '2,11p' "$0" >&2; exit 2 ;;
 esac

@@ -15,7 +15,7 @@ export const DEFAULT_TEMPLATE: EmailTemplate = {
 
 Namens het DMI Ecosysteem nodig ik je uit om het VESDI-dashboard te bekijken en je mening te geven. Het dashboard laat zien wat CBS-data over goederenvervoer (VESDI) en ANPR-cameradata vertellen over stadslogistiek, met de gemeente Utrecht als voorbeeld.
 
-IenW en DMI overwegen om deze CBS-data in te kopen voor 20 à 25 gemeenten. Met een korte enquête (ca. 10 minuten) willen we nagaan of dat echt nodig is: welke informatie heb je voor gemeente {gemeente} echt nodig, en zou je gemeente na de eerste drie jaar (betaald door DMI) zelf een contract met het CBS afsluiten?
+IenW en DMI overwegen om deze CBS-data in te kopen voor 20 à 25 gemeenten. Met een korte enquête (ca. 10 minuten) willen we nagaan of dat echt nodig is: welke informatie heb je voor {gemeente} echt nodig, en zou je gemeente na de eerste drie jaar (betaald door DMI) zelf een contract met het CBS afsluiten?
 
 Je persoonlijke link (geen wachtwoord nodig):
 {link}

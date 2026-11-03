@@ -170,7 +170,9 @@ export async function importRecipients(): Promise<RecipientImportResult | null> 
   } catch {
     return null;
   }
-  const parsed = Papa.parse<Record<string, string>>(text.replace(/^\uFEFF/, ''), {
+  // Normalise BOM and line endings: Papa picks one newline style from the first line
+  const normalised = text.replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n');
+  const parsed = Papa.parse<Record<string, string>>(normalised, {
     header: true,
     skipEmptyLines: true,
     transformHeader: (h) => h.trim().toLowerCase().replace(/[^a-z]/g, ''),
@@ -186,7 +188,7 @@ export async function importRecipients(): Promise<RecipientImportResult | null> 
     const rowNumber = idx + 2; // 1-based, after the header line
     const email = pick(row, ['email', 'mail', 'emailadres', 'mailadres']).toLowerCase();
     const naam = pick(row, ['naam', 'name', 'volledigenaam']).slice(0, 120);
-    const gemeente = pick(row, ['gemeente', 'municipality', 'organisatie']).slice(0, 120);
+    const gemeente = pick(row, ['gemeente', 'gemeenteorganisatie', 'organisatie', 'municipality']).slice(0, 120);
     if (!EMAIL_RE.test(email)) return void result.invalid.push({ row: rowNumber, reason: 'ongeldig of ontbrekend e-mailadres' });
     if (!naam) return void result.invalid.push({ row: rowNumber, reason: 'naam ontbreekt' });
     if (!gemeente) return void result.invalid.push({ row: rowNumber, reason: 'gemeente ontbreekt' });
