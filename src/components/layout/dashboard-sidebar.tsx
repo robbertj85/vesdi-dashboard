@@ -28,6 +28,7 @@ import {
   FlaskConical,
   LogOut,
   GraduationCap,
+  ClipboardCheck,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DMI_COLORS } from '@/lib/colors';
@@ -41,6 +42,7 @@ import { useTour } from '@/components/tour/tour-provider';
 const GENERAL_NAV_ITEMS = [
   { href: '/dashboard/voorblad', icon: Home, label: 'Voorblad', desc: 'Titelpagina en samenvatting', color: DMI_COLORS.orange },
   { href: '/dashboard/introductie', icon: Info, label: 'Introductie', desc: 'Uitleg dashboard en navigatie', color: DMI_COLORS.primary },
+  { href: '/dashboard/enquete', icon: ClipboardCheck, label: 'Enquête', desc: 'Geef je oordeel over de waarde', color: DMI_COLORS.gold },
 ];
 
 const WVE_NAV_ITEMS = [
@@ -73,7 +75,7 @@ const ANPR_NAV_ITEMS = [
 type NavItem = { href: string; icon: React.ComponentType<{ className?: string }>; label: string; desc: string; color: string };
 
 function renderNavItem(item: NavItem, pathname: string, expanded: boolean) {
-  const isActive = pathname === item.href;
+  const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
   const Icon = item.icon;
 
   const linkEl = (

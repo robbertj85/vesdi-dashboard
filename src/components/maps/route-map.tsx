@@ -7,8 +7,15 @@ import { useVesdiStore } from '@/lib/store';
 import { ROUTE_HEAT_COLORS } from '@/lib/colors';
 import { Card } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
-
-const ORS_PROFILE = 'driving-hgv';
+import {
+  ORS_PROFILE,
+  aggregateRoutePairs,
+  buildCentroidMap,
+  decodePolyline,
+  resolveCentroid,
+  type Centroid,
+  type GeoKeyPairAgg,
+} from '@/lib/route-pairs';
 
 interface RouteSegment {
   coordinates: [number, number][];
@@ -17,20 +24,6 @@ interface RouteSegment {
   euro6Count: number;
   euro05Count: number;
   topKlassen: { klasse: string; count: number; pct: number }[];
-}
-
-interface Centroid {
-  lat: number;
-  lng: number;
-}
-
-interface GeoKeyPairAgg {
-  fromKey: string;
-  toKey: string;
-  count: number;
-  euro6Count: number;
-  euro05Count: number;
-  klasseMap: Map<string, number>;
 }
 
 function getHeatColor(count: number, maxCount: number): string {
@@ -54,130 +47,57 @@ export function buildLegendBuckets(maxCount: number): { min: number; max: number
   }).reverse();
 }
 
-const CACHE_KEY = 'vesdi-routes-cache';
-
-function getRouteCache(): Record<string, [number, number][]> {
+// Routes used to be cached in localStorage (capped at ~5 MB); they now live in
+// the server-side route cache. Free the space taken by the old cache once.
+if (typeof window !== 'undefined') {
   try {
-    const cached = localStorage.getItem(CACHE_KEY);
-    return cached ? JSON.parse(cached) : {};
+    localStorage.removeItem('vesdi-routes-cache');
   } catch {
-    return {};
+    // storage unavailable
   }
 }
 
-function setRouteCache(cache: Record<string, [number, number][]>) {
+/** Larger batches are fine: cached routes come back from the server instantly */
+const BATCH_SIZE = 500;
+
+/**
+ * Routes for a batch of pairs from the server-side route cache (/api/ors).
+ * Returns [lat, lng] coordinates per pair, or null when no route is available.
+ */
+async function fetchRoutesBatch(pairs: { from: Centroid; to: Centroid }[]): Promise<([number, number][] | null)[]> {
   try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
-  } catch {
-    // localStorage full or unavailable
-  }
-}
-
-function makeCacheKey(fromLat: number, fromLng: number, toLat: number, toLng: number) {
-  return `${fromLat.toFixed(4)},${fromLng.toFixed(4)}-${toLat.toFixed(4)},${toLng.toFixed(4)}`;
-}
-
-/** Fetch a batch of routes in a single HTTP request, resolved server-side in parallel */
-async function fetchRoutesBatch(
-  pairs: { fromLat: number; fromLng: number; toLat: number; toLng: number }[]
-): Promise<([number, number][] | null)[]> {
-  const cache = getRouteCache();
-  const uncachedIndices: number[] = [];
-  const results: ([number, number][] | null)[] = pairs.map((p, i) => {
-    const key = makeCacheKey(p.fromLat, p.fromLng, p.toLat, p.toLng);
-    if (cache[key]) return cache[key];
-    uncachedIndices.push(i);
-    return null;
-  });
-
-  if (uncachedIndices.length === 0) return results;
-
-  try {
-    const batch = uncachedIndices.map((i) => ({
-      coordinates: [
-        [pairs[i].fromLng, pairs[i].fromLat],
-        [pairs[i].toLng, pairs[i].toLat],
-      ],
-    }));
-
     const res = await fetch(`/api/ors?profile=${ORS_PROFILE}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ batch }),
+      body: JSON.stringify({
+        batch: pairs.map(({ from, to }) => ({ coordinates: [[from.lng, from.lat], [to.lng, to.lat]] })),
+      }),
     });
-
-    if (!res.ok) return results;
-
-    const data = await res.json();
-    const batchResults: ({ coordinates: [number, number][] } | null)[] = data.results;
-
-    for (let j = 0; j < uncachedIndices.length; j++) {
-      const idx = uncachedIndices[j];
-      const route = batchResults[j];
-      if (route?.coordinates?.length) {
-        const coords: [number, number][] = route.coordinates.map(
-          (c: [number, number]) => [c[1], c[0]] as [number, number]
-        );
-        results[idx] = coords;
-        const p = pairs[idx];
-        cache[makeCacheKey(p.fromLat, p.fromLng, p.toLat, p.toLng)] = coords;
-      }
-    }
-
-    setRouteCache(cache);
+    if (!res.ok) return pairs.map(() => null);
+    const data: { results: (string | null)[] } = await res.json();
+    return data.results.map((p) => (p ? decodePolyline(p) : null));
   } catch {
-    // Network error — results stay null, will fall back to straight lines
+    // Network error — fall back to straight lines
+    return pairs.map(() => null);
   }
-
-  return results;
 }
 
-/** Load PC6, PC4 and NUTS3 centroid files and return a unified resolver */
+/** Load PC6, PC4 and NUTS3 centroid files and return a unified lookup */
 async function loadCentroids(): Promise<Record<string, Centroid>> {
-  const combined: Record<string, Centroid> = {};
-
-  // Load all three in parallel
-  const [pc6Res, pc4Res, nuts3Res] = await Promise.allSettled([
-    fetch('/geo/pc6-centroids.json'),
-    fetch('/geo/pc4-centroids.json'),
-    fetch('/geo/nuts3-centroids.json'),
+  const get = async <T,>(url: string): Promise<T | null> => {
+    try {
+      const res = await fetch(url);
+      return res.ok ? ((await res.json()) as T) : null;
+    } catch {
+      return null;
+    }
+  };
+  const [pc6, pc4, nuts3] = await Promise.all([
+    get<Record<string, [number, number]>>('/geo/pc6-centroids.json'),
+    get<Record<string, Centroid>>('/geo/pc4-centroids.json'),
+    get<Record<string, Centroid>>('/geo/nuts3-centroids.json'),
   ]);
-
-  // PC6 centroids (format: {"1234AB": [lat, lng], ...})
-  if (pc6Res.status === 'fulfilled' && pc6Res.value.ok) {
-    try {
-      const pc6Data: Record<string, [number, number]> = await pc6Res.value.json();
-      for (const [code, coords] of Object.entries(pc6Data)) {
-        combined[code] = { lat: coords[0], lng: coords[1] };
-      }
-    } catch {
-      // PC6 parse error
-    }
-  }
-
-  // PC4 centroids (format: {"1234": {lat, lng}, ...})
-  if (pc4Res.status === 'fulfilled' && pc4Res.value.ok) {
-    try {
-      const pc4Data: Record<string, Centroid> = await pc4Res.value.json();
-      Object.assign(combined, pc4Data);
-    } catch {
-      // PC4 parse error
-    }
-  }
-
-  // NUTS3 centroids (keyed as "NUTS3:XX123")
-  if (nuts3Res.status === 'fulfilled' && nuts3Res.value.ok) {
-    try {
-      const nuts3Data: Record<string, Centroid> = await nuts3Res.value.json();
-      for (const [code, centroid] of Object.entries(nuts3Data)) {
-        combined[`NUTS3:${code}`] = centroid;
-      }
-    } catch {
-      // NUTS3 parse error
-    }
-  }
-
-  return combined;
+  return buildCentroidMap(pc6, pc4, nuts3);
 }
 
 interface RouteMapProps {
@@ -195,32 +115,10 @@ export function RouteMap({ height = 500, maxRoutes = 200, useTrajectories = fals
   const [progress, setProgress] = useState({ done: 0, total: 0 });
 
   // Aggregate unique geo key pairs across all years with Euro + klasse breakdown
-  const allPairsSorted = useMemo((): GeoKeyPairAgg[] => {
-    const map = new Map<string, GeoKeyPairAgg>();
-    for (const rows of deelrittenByYear.values()) {
-      for (const r of rows) {
-        if (!r.isNational) continue;
-        const from = r.geoKeyLaad;
-        const to = r.geoKeyLos;
-        if (!from || !to || from === to) continue;
-        const key = `${from}->${to}`;
-        let agg = map.get(key);
-        if (!agg) {
-          agg = { fromKey: from, toKey: to, count: 0, euro6Count: 0, euro05Count: 0, klasseMap: new Map() };
-          map.set(key, agg);
-        }
-        agg.count += r.aantalDeelritten;
-        if (String(r.euronormKlasse) === '6') {
-          agg.euro6Count += r.aantalDeelritten;
-        } else {
-          agg.euro05Count += r.aantalDeelritten;
-        }
-        const klasse = r.stadslogistieke_klasse || `Klasse ${r.stadslogistieke_klasse_code}`;
-        agg.klasseMap.set(klasse, (agg.klasseMap.get(klasse) || 0) + r.aantalDeelritten);
-      }
-    }
-    return [...map.values()].sort((a, b) => b.count - a.count);
-  }, [deelrittenByYear]);
+  const allPairsSorted = useMemo(
+    (): GeoKeyPairAgg[] => aggregateRoutePairs(deelrittenByYear.values()),
+    [deelrittenByYear]
+  );
 
   const geoKeyPairs = useMemo(
     () => maxRoutes > 0 ? allPairsSorted.slice(0, maxRoutes) : allPairsSorted,
@@ -242,22 +140,14 @@ export function RouteMap({ height = 500, maxRoutes = 200, useTrajectories = fals
     const results: RouteSegment[] = [];
     setProgress({ done: 0, total: geoKeyPairs.length });
 
-    // Resolve centroid with PC6→PC4 fallback
-    const resolveCentroid = (key: string): Centroid | undefined => {
-      if (centroidMap[key]) return centroidMap[key];
-      // If key looks like a PC6 (4 digits + 2 letters), fall back to PC4
-      if (/^\d{4}[A-Z]{2}$/i.test(key)) {
-        return centroidMap[key.substring(0, 4)];
-      }
-      return undefined;
-    };
+    const resolve = (key: string) => resolveCentroid(centroidMap, key);
 
     // Pre-resolve centroids and filter out pairs without valid locations
     const resolvedPairs = geoKeyPairs
       .map((pair) => ({
         pair,
-        from: resolveCentroid(pair.fromKey),
-        to: resolveCentroid(pair.toKey),
+        from: resolve(pair.fromKey),
+        to: resolve(pair.toKey),
       }))
       .filter((p): p is typeof p & { from: Centroid; to: Centroid } => !!p.from && !!p.to);
 
@@ -290,16 +180,10 @@ export function RouteMap({ height = 500, maxRoutes = 200, useTrajectories = fals
       }
       setProgress({ done: resolvedPairs.length, total: resolvedPairs.length });
     } else {
-      // Send routes in batches, resolved server-side with high concurrency
-      const BATCH_SIZE = 100;
+      // Routes come from the server-side cache; missing ones are computed there
       for (let batchStart = 0; batchStart < resolvedPairs.length; batchStart += BATCH_SIZE) {
         const batch = resolvedPairs.slice(batchStart, batchStart + BATCH_SIZE);
-        const pairs = batch.map(({ from, to }) => ({
-          fromLat: from.lat, fromLng: from.lng,
-          toLat: to.lat, toLng: to.lng,
-        }));
-
-        const batchCoords = await fetchRoutesBatch(pairs);
+        const batchCoords = await fetchRoutesBatch(batch.map(({ from, to }) => ({ from, to })));
 
         for (let j = 0; j < batch.length; j++) {
           let coords = batchCoords[j];

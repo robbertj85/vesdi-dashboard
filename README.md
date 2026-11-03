@@ -72,7 +72,24 @@ NEXT_PUBLIC_ORS_BASE_URL=https://your-ors-instance.com/ors
 NEXT_PUBLIC_ORS_API_KEY=your-api-key
 ```
 
-Requests are proxied through `/api/ors` to avoid CORS issues and processed in parallel batches.
+Requests go through `/api/ors`, which keeps a persistent server-side route cache (`ROUTE_CACHE_DIR`, default `./data/routes`). Precompute every trajectory for the demo dataset once, so visitors never wait for routing:
+
+```bash
+npm run routes:precompute              # all ~36,000 pairs; resumable, skips cached pairs
+npm run routes:precompute -- --limit 1000
+```
+
+The route cache is derived from the confidential CBS data (postcode-level origin/destination pairs) and lives under the gitignored `data/` folder.
+
+## Enquête (questionnaire)
+
+The "Enquête" page asks municipal staff to rate every page (or section) on a 1–5 scale — ideally by walking through the dashboard with a docked rating panel — and asks whether their municipality would contract CBS itself after the first three DMI-funded years, and how likely it is they can deliver ANPR data to CBS.
+
+- Responses are stored as JSON lines in `SURVEY_DATA_DIR` (default `./data/survey`, gitignored). Use persistent storage, e.g. a Docker volume.
+- Results, CSV export and personal invite links: `/dashboard/enquete/resultaten`, protected by `SURVEY_ADMIN_KEY`.
+- Invite links (`/uitnodiging/<code>`) log a respondent in without a password (session valid 90 days), fill in their name and municipality, and keep one (latest) response per person.
+- Sending invitations: put the recipient list in `data/survey/ontvangers.csv` (`naam;gemeente;email`, see `scripts/ontvangers.voorbeeld.csv`; gitignored), click "Importeer ontvangerslijst" on the results page, then "Volgende e-mail opstellen" opens a pre-filled message in Outlook per person. The e-mail text is editable on that page. Set `PUBLIC_BASE_URL` so links point at the public site.
+- Link-only mode: leave `DEMO_USERNAME`/`DEMO_PASSWORD` unset and set `AUTH_SECRET`; then only personal links give access (create one for yourself too).
 
 ## Basemap
 

@@ -83,7 +83,7 @@ public/
 4. `transform.ts` adds derived columns (LaadLand, isNational, geo keys with PC6→PC4→NUTS3 fallback, klasse/voertuig/gewicht label resolution)
 5. `store.ts` persists to IndexedDB via Zustand middleware
 6. Dashboard pages use `selectors.ts` hooks → `aggregate.ts` functions → chart components
-7. Route map fetches ORS directions via `/api/ors` proxy in parallel batches of 10, cached in localStorage
+7. Route map requests trajectories from `/api/ors` in batches of 500; the server answers from a persistent route cache (`src/lib/route-cache.ts`, `$ROUTE_CACHE_DIR/routes.jsonl`) and only calls ORS for missing pairs. Precompute all pairs with `npm run routes:precompute` (pair logic shared via `src/lib/route-pairs.ts`)
 
 ## Geographic Fallback Chain
 - **PC6 available** → geoKey = full PC6 code (e.g. "3511AB"), centroid from pc6-centroids.json
@@ -110,12 +110,26 @@ DEMO_USERNAME=              # Shared login (required — app is unusable without
 DEMO_PASSWORD=
 AUTH_SECRET=                # Optional cookie signing key (derived from credentials if unset)
 DEMO_DATA_DIR=              # Optional; default ./demo-data/utrecht
+SURVEY_ADMIN_KEY=           # Required to view Enquête results / manage invite links
+SURVEY_DATA_DIR=            # Optional; default ./data/survey (must be persistent storage)
+ROUTE_CACHE_DIR=            # Optional; default ./data/routes (precomputed trajectories)
 ```
 
 ## Demo Data & Auth
 - Everything except `/login`, `/api/auth/*`, `/_next/*`, `/images/*` requires the session cookie (`src/proxy.ts`). `/api/demo*` re-check the cookie themselves.
 - `demo-data/` holds confidential CBS data: gitignored, built by `scripts/prepare-demo-data.sh` from the local `Utrecht/` folders. Never commit it; the GitHub repo is public.
 - IndexedDB values are chunked (`idb-storage.ts`): the full Utrecht state is ~114M chars, above Chrome's ~133 MB per-value limit.
+
+## Enquête (questionnaire)
+- Goal: measure whether municipal staff need this information, to decide on a multi-year CBS contract (DMI pays the first 3 years).
+- `src/lib/survey.ts`: items (one per page, or per section on long pages, anchored via `data-tour`), answer options, server-side `sanitizeAnswers`.
+- `src/components/survey/survey-provider.tsx`: draft in localStorage + docked, non-modal rating panel that walks the pages (like the tour, but the page stays usable).
+- Storage: `/api/survey` appends JSON lines to `$SURVEY_DATA_DIR/responses.jsonl` — no database. Needs persistent disk (VPS volume); Vercel's filesystem is ephemeral.
+- Personal invite links `/uitnodiging/<code>` (managed on `/dashboard/enquete/resultaten`, admin key) log in without a password; identity comes from the invite and the latest response per invite counts.
+- Invitation e-mails: recipient list `data/survey/ontvangers.csv` (or `SURVEY_RECIPIENTS_FILE`), imported into invites; per invite a `mailto:` (Outlook) or Outlook-web compose link from the template in `src/components/survey/invite-email.ts`; `PUBLIC_BASE_URL` sets the link host.
+- Auth modes: shared password (DEMO_USERNAME/DEMO_PASSWORD) + invite links, or link-only (only AUTH_SECRET set). Invite sessions last 90 days.
+- UI copy is Dutch in the informal "je" form — keep it that way.
+- `data/` holds personal data: gitignored, never commit.
 
 ## Conventions
 - Some source files use CRLF line endings — preserve them when editing.

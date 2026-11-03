@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { DemoCard } from '@/components/upload/demo-card';
 import { TourProvider } from '@/components/tour/tour-provider';
+import { SurveyProvider } from '@/components/survey/survey-provider';
 
 function DashboardContent({ children }: { children: React.ReactNode }) {
   const { expanded } = useSidebar();
@@ -75,7 +76,9 @@ export default function DashboardLayout({
   return (
     <SidebarProvider>
       <TourProvider>
-        <DashboardContent>{children}</DashboardContent>
+        <SurveyProvider>
+          <DashboardContent>{children}</DashboardContent>
+        </SurveyProvider>
       </TourProvider>
     </SidebarProvider>
   );

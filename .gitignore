@@ -62,3 +62,9 @@ public/DMI-LOGO RGB/
 
 # Demo dataset served behind login (CBS confidential data — never commit)
 /demo-data/
+
+# Survey responses and invite links (personal data — never commit)
+/data/
+# Recipient lists for survey invitations (personal data) — also if placed outside data/
+ontvangers*.csv
+!scripts/ontvangers.voorbeeld.csv

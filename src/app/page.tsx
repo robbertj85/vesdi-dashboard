@@ -95,7 +95,7 @@ export default function UploadPage() {
               Gemeentelijk VESDI-dashboard
             </h1>
             <p className="text-lg text-dmi-text/60 max-w-2xl mx-auto leading-relaxed">
-              Bekijk de demo met data van de gemeente Utrecht, of upload de CBS-bestanden van uw eigen gemeente om automatisch een interactief dashboard te genereren met inzichten over stedelijke distributie en logistiek.
+              Bekijk de demo met data van de gemeente Utrecht, of upload de CBS-bestanden van je eigen gemeente om automatisch een interactief dashboard te genereren met inzichten over stedelijke distributie en logistiek.
             </p>
           </div>
 
@@ -154,7 +154,7 @@ export default function UploadPage() {
                 <ol className="space-y-3 text-sm text-dmi-text/70">
                   <li className="flex gap-3">
                     <span className="shrink-0 w-5 h-5 rounded-full bg-dmi-primary text-white text-xs flex items-center justify-center font-bold">1</span>
-                    <span>Sleep alle CBS-bestanden van uw gemeente in het uploadveld</span>
+                    <span>Sleep alle CBS-bestanden van je gemeente in het uploadveld</span>
                   </li>
                   <li className="flex gap-3">
                     <span className="shrink-0 w-5 h-5 rounded-full bg-dmi-primary text-white text-xs flex items-center justify-center font-bold">2</span>

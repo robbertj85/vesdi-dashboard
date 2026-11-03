@@ -11,7 +11,7 @@ import {
 export async function POST(request: NextRequest) {
   if (!getAuthConfig()) {
     return NextResponse.json(
-      { error: 'Inloggen is niet geconfigureerd (DEMO_USERNAME / DEMO_PASSWORD ontbreken).' },
+      { error: 'Inloggen met een wachtwoord staat uit. Gebruik de persoonlijke link uit je uitnodiging.' },
       { status: 503 }
     );
   }

@@ -116,7 +116,7 @@ export default function NationaleDeelrittenPostcodePage() {
         </Card>
 
         {/* OUTPUT section */}
-        <Card className="p-6 border-2 border-dmi-primary/20">
+        <Card data-tour="postcode-output" className="p-6 border-2 border-dmi-primary/20">
           <SectionTitle as="h2" title="OUTPUT" tooltip={SECTION_TOOLTIPS.outputSection} className="mb-4" />
 
           <div className="grid grid-cols-2 gap-3 mb-4">

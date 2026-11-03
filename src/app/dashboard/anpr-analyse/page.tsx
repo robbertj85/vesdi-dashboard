@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemo, useState, useCallback } from 'react';
+import { Suspense, useMemo, useState, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { PageHeader } from '@/components/layout/page-header';
 import { PAGE_HELP } from '@/lib/descriptions';
 import { PAGE_COLORS, DMI_COLORS } from '@/lib/colors';
@@ -30,6 +31,15 @@ import {
 } from 'recharts';
 
 export default function AnprAnalysePage() {
+  // useSearchParams needs a Suspense boundary in the App Router
+  return (
+    <Suspense>
+      <AnprAnalyseContent />
+    </Suspense>
+  );
+}
+
+function AnprAnalyseContent() {
   const m1 = useAnprTable('M1');
   const rows = m1?.rows ?? [];
 
@@ -60,6 +70,19 @@ export default function AnprAnalysePage() {
   const [destMonth, setDestMonth] = useState(6);
   const [destYear, setDestYear] = useState(lastPeriod.year + 1);
   const [appliedExtraMonths, setAppliedExtraMonths] = useState(0);
+
+  // ?extrapoleer=2030 (used by the questionnaire) opens the page with the
+  // extrapolation to December of that year already applied.
+  const autoYear = Number(useSearchParams().get('extrapoleer')) || null;
+  const [autoApplied, setAutoApplied] = useState<string | null>(null);
+  const autoKey = autoYear ? `${autoYear}:${lastPeriod.year}-${lastPeriod.month}` : null;
+  if (autoYear && autoYear > lastPeriod.year && autoKey !== autoApplied) {
+    // Adjusting state while rendering (React's pattern for props→state sync)
+    setAutoApplied(autoKey);
+    setDestMonth(12);
+    setDestYear(autoYear);
+    setAppliedExtraMonths((autoYear - lastPeriod.year) * 12 + (12 - lastPeriod.month));
+  }
   const [extraMode, setExtraMode] = useState<'clamp' | 'substitute'>('clamp');
 
   // ─── Regression data (Euro-6, Zero-emissie, and Euro 0-5) ───

@@ -45,7 +45,7 @@ export const TOUR_STEPS: TourStep[] = [
     target: 'page-header',
     title: 'Uitleg op elke pagina',
     body:
-      'Elke pagina begint met een korte omschrijving. Achter het vraagteken (?) staat hoe u de pagina leest; ook elke grafiek, kaart, filter en kerncijfer heeft zo’n vraagteken.',
+      'Elke pagina begint met een korte omschrijving. Achter het vraagteken (?) staat hoe je de pagina leest; ook elke grafiek, kaart, filter en kerncijfer heeft zo’n vraagteken.',
   },
   {
     id: 'trends',
@@ -62,7 +62,7 @@ export const TOUR_STEPS: TourStep[] = [
     target: 'filters',
     title: 'Filters',
     body:
-      'Met de filterbalk kiest u het jaar, de Euronorm of ritten van en naar de zero-emissiezone. De filters gelden voor alle grafieken op de pagina en blijven staan als u naar een andere pagina gaat.',
+      'Met de filterbalk kies je het jaar, de Euronorm of ritten van en naar de zero-emissiezone. De filters gelden voor alle grafieken op de pagina en blijven staan als je naar een andere pagina gaat.',
     requires: 'vesdi',
   },
   {
@@ -89,7 +89,7 @@ export const TOUR_STEPS: TourStep[] = [
     target: 'route-controls',
     title: 'Routekaart',
     body:
-      'De meest voorkomende herkomst-bestemmingsparen als lijnen op de kaart. Kies “Trajecten” om routes over het wegennet te laten berekenen en klik op een route voor Euronorm en goederensoort.',
+      'De meest voorkomende herkomst-bestemmingsparen, getekend als waarschijnlijke route over het wegennet. Hoe donkerder de lijn, hoe meer deelritten. Klik op een route voor Euronorm en goederensoort.',
     requires: 'vesdi',
   },
   {
@@ -125,13 +125,13 @@ export const TOUR_STEPS: TourStep[] = [
     target: 'completeness',
     title: 'Datakwaliteit',
     body:
-      'Hoe volledig zijn de bestanden? Per kolom ziet u welk deel van de rijen een waarde heeft. Zo weet u hoe stevig een conclusie staat.',
+      'Hoe volledig zijn de bestanden? Per kolom zie je welk deel van de rijen een waarde heeft. Zo weet je hoe stevig een conclusie staat.',
     requires: 'vesdi',
   },
   {
     id: 'klaar',
     title: 'Rondleiding voltooid!',
     body:
-      'U kent nu de belangrijkste onderdelen. Verken de pagina’s zelf, of upload de CBS- en ANPR-bestanden van uw eigen gemeente. De rondleiding start u altijd opnieuw via “Rondleiding” in de zijbalk.',
+      'Je kent nu de belangrijkste onderdelen. Help ons daarna met de enquête: hoe waardevol is deze informatie voor jouw gemeente? De rondleiding start je altijd opnieuw via “Rondleiding” in de zijbalk.',
   },
 ];

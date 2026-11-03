@@ -122,7 +122,7 @@ export default function AnprEmissiePage() {
       </div>
 
       {/* ─── Emission donut + monthly stacked bar ─── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div data-tour="emissie-trends" className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <DonutChart
           title="Emissieklasse"
           titleTooltip={CHART_TOOLTIPS.anprEmissieklasse}
@@ -172,7 +172,7 @@ export default function AnprEmissiePage() {
       </Card>
 
       {/* ─── Monthly by vehicle category ─── */}
-      <Card className="p-4">
+      <Card data-tour="emissie-voertuig" className="p-4">
         <div className="flex items-center justify-between mb-3">
           <ChartTitle title="Maandelijks per voertuigcategorie" tooltip={CHART_TOOLTIPS.anprMaandelijkVoertuig} />
           <div className="flex gap-0.5">

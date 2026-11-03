@@ -4,7 +4,8 @@ import { SESSION_COOKIE, verifySessionToken } from '@/lib/auth';
 
 /**
  * Gate every route behind the shared demo login.
- * Public: the login page, the auth API, Next.js build assets and the logos
+ * Public: the login page, personal survey links (/uitnodiging/…), the auth API,
+ * Next.js build assets and the logos
  * shown on the login page (see `matcher` below).
  */
 export function proxy(request: NextRequest) {
@@ -25,6 +26,6 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!login|api/auth|_next/static|_next/image|favicon\\.ico|images/).*)',
+    '/((?!login|uitnodiging|api/auth|_next/static|_next/image|favicon\\.ico|images/).*)',
   ],
 };

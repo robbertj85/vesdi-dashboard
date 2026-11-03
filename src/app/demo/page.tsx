@@ -77,7 +77,7 @@ function DemoLoader() {
                 : processingStatus || 'Voorbereiden…'}
             </p>
             <p className="text-xs text-dmi-text/40">
-              De data wordt alleen in uw browser verwerkt en opgeslagen.
+              De data wordt alleen in je browser verwerkt en opgeslagen.
             </p>
           </div>
         )}

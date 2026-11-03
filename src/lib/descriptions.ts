@@ -39,6 +39,8 @@ export const PAGE_DESCRIPTIONS = {
     'Kenmerken van bezoekers: type bezoeker, bedrijfsgrootte en herkomstprovincie.',
   anprTijdpatronen:
     'Dag- en weekpatronen van vrachtverkeerbezoeken.',
+  enquete:
+    'Geef aan hoe waardevol de informatie in dit dashboard is voor je werk, en of je gemeente na drie jaar zelf zou contracteren.',
 } as const;
 
 export const KPI_TOOLTIPS = {
@@ -130,9 +132,9 @@ export const PAGE_HELP = {
   voorblad:
     'Startpunt van het dashboard. Gebruik de zijbalk links om naar de analysepagina\'s te gaan; elke pagina en grafiek heeft een (?) met uitleg.',
   introductie:
-    'Leest u dit dashboard voor het eerst? Begin hier: deze pagina legt uit wat VESDI- en ANPR-data zijn, hoe ze verzameld worden en welke periode is geladen. Rechts staan snelkoppelingen naar alle pagina\'s.',
+    'Lees je dit dashboard voor het eerst? Begin hier: deze pagina legt uit wat VESDI- en ANPR-data zijn, hoe ze verzameld worden en welke periode is geladen. Rechts staan snelkoppelingen naar alle pagina\'s.',
   trends:
-    'Vergelijkt alle geladen jaren naast elkaar. Deze pagina negeert het jaarfilter, zodat u de ontwikkeling door de tijd ziet. Let op: verschillen tussen jaren kunnen deels door de steekproef komen.',
+    'Vergelijkt alle geladen jaren naast elkaar. Deze pagina negeert het jaarfilter, zodat je de ontwikkeling door de tijd ziet. Let op: verschillen tussen jaren kunnen deels door de steekproef komen.',
   zendingenOverzicht:
     'Links: waar komen zendingen naar de gemeente vandaan? Rechts: waar gaan zendingen vanuit de gemeente naartoe? Hoe donkerder de regio, hoe groter het aandeel. Beweeg over een regio voor de exacte waarde.',
   nationaleZendingen:
@@ -144,7 +146,7 @@ export const PAGE_HELP = {
   nationaleDeelrittenPostcode:
     'INPUT (links) toont waar ritten laden en lossen; wissel tussen postcode-4 en de nauwkeuriger postcode-6. OUTPUT (rechts) vat de kenmerken van deze ritten samen.',
   routekaart:
-    'Toont de meest voorkomende herkomst-bestemmingsparen als lijnen of als berekende routes over het wegennet. Kies links hoeveel routes u wilt zien en klik op een route voor details.',
+    'Toont de meest voorkomende herkomst-bestemmingsparen als lijnen of als berekende routes over het wegennet. Kies links hoeveel routes je wilt zien en klik op een route voor details.',
   internationaleDeelrittenOverzicht:
     'Europese kaarten met de herkomst (links) en bestemming (rechts) van grensoverschrijdende deelritten van en naar de gemeente.',
   internationaleDeelritten:
@@ -165,6 +167,8 @@ export const PAGE_HELP = {
     'Hoe vaak komen voertuigen terug, en uit welke provincie komen ze? Eenmalige bezoekers vragen om een andere aanpak dan dagelijkse leveranciers.',
   anprTijdpatronen:
     'Op welke dagen en tijdstippen is het vrachtverkeer het drukst? Nuttig voor bijvoorbeeld venstertijden en handhaving.',
+  enquete:
+    'Beoordeel elk onderdeel op een schaal van 1 tot 5, het liefst door langs de pagina\'s te lopen. Beantwoord daarna de vragen over een contract met het CBS en over ANPR-data. Je antwoorden worden tussentijds bewaard in deze browser; pas bij "Verstuur" gaan ze naar DMI.',
   anprAnalyse:
     'Statistische verdieping: trendlijnen met extrapolatie van de emissieklassen, en een toets of het aandeel per klasse tussen twee periodes significant verschilt.',
 } as const;
@@ -173,11 +177,11 @@ export const PAGE_HELP = {
 export const SECTION_TOOLTIPS = {
   // Login / demo / upload
   login:
-    'Deze demo-omgeving is afgeschermd met één gedeelde gebruikersnaam en wachtwoord. Na inloggen wordt automatisch de demodata van de gemeente Utrecht geladen.',
+    'Deze demo-omgeving is afgeschermd. Uitgenodigde deelnemers komen binnen via de persoonlijke link in hun e-mail; beheerders loggen in met het wachtwoord. Na het inloggen wordt de demodata van de gemeente Utrecht geladen.',
   demoCard:
-    'Laadt de VESDI-wegvervoersenquête 2021-2023 en ANPR-data 2025 van de gemeente Utrecht. De bestanden worden in uw browser verwerkt; vervangt eventueel eerder geladen data.',
+    'Laadt de VESDI-wegvervoersenquête 2021-2023 en ANPR-data 2025 van de gemeente Utrecht. De bestanden worden in je browser verwerkt; vervangt eventueel eerder geladen data.',
   dropZone:
-    'Sleep losse bestanden of complete mappen hierheen. Het bestandstype wordt automatisch herkend aan de kolommen, niet aan de bestandsnaam. Alles blijft in uw browser; er wordt niets naar een server gestuurd.',
+    'Sleep losse bestanden of complete mappen hierheen. Het bestandstype wordt automatisch herkend aan de kolommen, niet aan de bestandsnaam. Alles blijft in je browser; er wordt niets naar een server gestuurd.',
   supportedFiles:
     'Minimaal nodig: een zendingen- of deelrittenbestand (VESDI) of ANPR-bestanden. Codetabellen en lookup-bestanden zorgen dat codes als leesbare namen getoond worden.',
   howItWorks:
@@ -197,7 +201,7 @@ export const SECTION_TOOLTIPS = {
 
   // Filters
   filterBar:
-    'Filters gelden voor alle grafieken op deze pagina en blijven bewaard als u naar een andere pagina gaat.',
+    'Filters gelden voor alle grafieken op deze pagina en blijven bewaard als je naar een andere pagina gaat.',
   filterYear:
     'Kies het jaar van de wegvervoersenquête. Standaard wordt het meest recente jaar getoond.',
   filterEuronorm:
@@ -235,7 +239,7 @@ export const SECTION_TOOLTIPS = {
   routeAantal:
     'Hoeveel van de meest voorkomende herkomst-bestemmingsparen worden getekend. Meer routes geeft een vollediger beeld, maar laadt trager.',
   routeWeergave:
-    'Rechte lijnen verbinden herkomst en bestemming direct. Trajecten worden berekend via OpenRouteService over het wegennet en tonen waar het verkeer waarschijnlijk rijdt.',
+    'Trajecten tonen de waarschijnlijke route over het wegennet (vooraf berekend met OpenRouteService). Rechte lijnen verbinden alleen herkomst en bestemming.',
   routeLegenda:
     'Kleurschaal voor het aantal deelritten per route. De klassen worden automatisch afgeleid uit de getoonde data.',
   routeOmschrijving:
@@ -256,8 +260,24 @@ export const SECTION_TOOLTIPS = {
     'De Wegvervoersenquête is een steekproef: aantallen zijn door het CBS opgehoogd naar het totaal en hebben dus een onzekerheidsmarge.',
   introVerslagperiode:
     'De periode waarop de geladen bestanden betrekking hebben.',
+  enqueteWaarom:
+    'De uitkomst helpt bepalen of IenW/DMI het contract met het CBS aangaat: VESDI-data voor 20 à 25 gemeenten, geschatte contractwaarde ca. € 605.000.',
+  enqueteOverU:
+    'Zo kunnen we de antwoorden per gemeente en per rol bekijken. Via een persoonlijke uitnodigingslink zijn naam en gemeente al bekend.',
+  enqueteWaardering:
+    '1 = niet waardevol, 5 = zeer waardevol voor je werk. Kies n.v.t. als je het niet kunt beoordelen. Met de knop loop je langs de pagina\'s en beoordeel je ter plekke.',
+  enqueteContract:
+    'DMI financiert de eerste drie jaar. Daarna is de vraag of gemeenten zelf (eventueel samen) een contract met het CBS afsluiten; de kosten liggen naar schatting minimaal tussen € 2.500 en € 7.500 per gemeente per jaar.',
+  enqueteAnpr:
+    'Voor de ANPR-tabellen heeft het CBS cameradata van gemeenten nodig. We willen weten hoe haalbaar dat is en wat er in de weg staat.',
+  enqueteOpmerkingen:
+    'Alles wat je verder kwijt wilt: ontbrekende informatie, verbeterpunten of vragen.',
+  resultatenOverzicht:
+    'Gemiddelde waardering per onderdeel (1–5) en de verdeling van de antwoorden. n = aantal respondenten dat een cijfer gaf; n.v.t.-antwoorden tellen niet mee in het gemiddelde.',
+  resultatenUitnodigingen:
+    'Maak per respondent een persoonlijke link aan. De link logt in zonder wachtwoord, vult naam en gemeente in en zorgt dat er per persoon één antwoord telt.',
   introNav:
-    'Snelkoppelingen naar alle pagina\'s, gegroepeerd per databron. Dezelfde pagina\'s vindt u in de zijbalk.',
+    'Snelkoppelingen naar alle pagina\'s, gegroepeerd per databron. Dezelfde pagina\'s vind je in de zijbalk.',
 } as const;
 
 export const CHART_TOOLTIPS_EXTRA = {

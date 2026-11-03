@@ -4,7 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { ChevronLeft, ChevronRight, GraduationCap, Upload, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ClipboardCheck, GraduationCap, X } from 'lucide-react';
 import { useVesdiStore } from '@/lib/store';
 import { cn } from '@/lib/utils';
 import { TOUR_STEPS, type TourStep } from './tour-steps';
@@ -275,12 +275,12 @@ function TourOverlay({ step, index, total, onPage, onNext, onPrev, onClose }: To
             </p>
             {isLast && (
               <Link
-                href="/"
+                href="/dashboard/enquete"
                 onClick={onClose}
                 className="flex items-center justify-center gap-2 w-full rounded-lg border-2 border-dmi-gold bg-dmi-gold/10 px-4 py-2.5 text-sm font-semibold text-dmi-primary hover:bg-dmi-gold/20 transition-colors"
               >
-                <Upload className="w-4 h-4" />
-                Eigen data uploaden
+                <ClipboardCheck className="w-4 h-4" />
+                Naar de enquête
               </Link>
             )}
           </div>

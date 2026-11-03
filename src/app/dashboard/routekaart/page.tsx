@@ -29,7 +29,8 @@ const ROUTE_OPTIONS = [
 export default function RoutekaartPage() {
   const [legendBuckets, setLegendBuckets] = useState(buildLegendBuckets(0));
   const [maxRoutes, setMaxRoutes] = useState(200);
-  const [useTrajectories, setUseTrajectories] = useState(false);
+  // Trajectories are precomputed server-side (npm run routes:precompute), so show them by default
+  const [useTrajectories, setUseTrajectories] = useState(true);
   const [totalPairs, setTotalPairs] = useState(0);
 
   const handleLegendData = useCallback((maxCount: number) => {
@@ -82,7 +83,7 @@ export default function RoutekaartPage() {
           <Card className="p-4">
             <SectionTitle title="Weergave" tooltip={SECTION_TOOLTIPS.routeWeergave} className="mb-2" />
             <p className="text-xs text-dmi-text/50 mb-3">
-              Rechte lijnen laden direct. Trajecten vragen routes op bij de routeserver.
+              Trajecten volgen het wegennet en zijn vooraf berekend. Rechte lijnen tonen alleen herkomst en bestemming.
             </p>
             <div className="flex gap-1.5">
               <button
@@ -155,18 +156,18 @@ export default function RoutekaartPage() {
             </ul>
           </Card>
 
-          <div className="flex items-start gap-2 p-3 bg-dmi-orange/10 rounded-lg">
-            <AlertTriangle className="w-4 h-4 text-dmi-orange shrink-0 mt-0.5" />
-            <p className="text-xs text-dmi-orange">
-              {maxRoutes === 0 || maxRoutes > 500
-                ? 'Let op! Bij een groot aantal routes kan het laden enkele minuten duren.'
-                : 'Let op! Het kan enige tijd duren voordat de kaart geladen is.'}
-            </p>
-          </div>
+          {(maxRoutes === 0 || maxRoutes > 1000) && (
+            <div className="flex items-start gap-2 p-3 bg-dmi-orange/10 rounded-lg">
+              <AlertTriangle className="w-4 h-4 text-dmi-orange shrink-0 mt-0.5" />
+              <p className="text-xs text-dmi-orange">
+                Let op! Duizenden routes tekenen kan de browser enkele seconden vertragen.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Map */}
-        <div className="lg:col-span-3">
+        <div data-tour="route-map" className="lg:col-span-3 lg:self-start">
           <RouteMap
             key={`${maxRoutes}-${useTrajectories}`}
             height={600}

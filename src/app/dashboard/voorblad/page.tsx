@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import Link from 'next/link';
-import { ArrowRight, GraduationCap } from 'lucide-react';
+import { ArrowRight, ClipboardCheck, GraduationCap } from 'lucide-react';
 import { useVesdiStore } from '@/lib/store';
 import { KPICard } from '@/components/layout/kpi-card';
 import { useTour } from '@/components/tour/tour-provider';
@@ -117,6 +117,13 @@ export default function VoorbladPage() {
         >
           Lees de introductie
           <ArrowRight className="w-4 h-4" />
+        </Link>
+        <Link
+          href="/dashboard/enquete"
+          className="flex-1 flex items-center justify-center gap-2 rounded-xl border-2 border-dmi-primary/20 bg-white hover:bg-dmi-primary/5 transition-colors px-5 py-3 font-semibold text-dmi-primary"
+        >
+          <ClipboardCheck className="w-5 h-5" />
+          Vul de enquête in
         </Link>
       </div>
     </div>
