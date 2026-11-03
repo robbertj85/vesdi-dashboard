@@ -1,0 +1,61 @@
+# Coolify "Docker Compose" resource for prototype.transportlab.app/vesdi-dashboard.
+# Environment variables (Coolify UI): DEMO_USERNAME, DEMO_PASSWORD, AUTH_SECRET,
+# SURVEY_ADMIN_KEY, ORS_API_KEY; optional ORS_BASE_URL, PUBLIC_BASE_URL,
+# NEXT_PUBLIC_CARTO_API_KEY, NEXT_PUBLIC_UMAMI_SRC, NEXT_PUBLIC_UMAMI_WEBSITE_ID.
+# Never commit their values.
+# Nginx Proxy Manager: proxy host prototype.transportlab.app, custom location
+# /vesdi-dashboard -> http://vesdi-dashboard:3000 on the shared `coolify`
+# network (no URI rewrite). See deploy/README.md.
+#
+# Coolify resource setting (Advanced): Consistent Container Names on, Custom
+# Internal Name `vesdi-dashboard`. The container is then
+# vesdi-dashboard-vesdi-dashboard.
+#
+# One service, named after the app (not `app`): it joins the shared `coolify`
+# network, where Docker also registers the service name as an alias.
+# No nginx in front: every file (incl. /geo data) must pass the login check in
+# the Next.js proxy.
+services:
+  vesdi-dashboard:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile
+      args:
+        - NEXT_PUBLIC_BASE_PATH=/vesdi-dashboard
+        - NEXT_PUBLIC_CARTO_API_KEY=${NEXT_PUBLIC_CARTO_API_KEY:-}
+        - NEXT_PUBLIC_UMAMI_SRC=${NEXT_PUBLIC_UMAMI_SRC:-}
+        - NEXT_PUBLIC_UMAMI_WEBSITE_ID=${NEXT_PUBLIC_UMAMI_WEBSITE_ID:-}
+    restart: unless-stopped
+    environment:
+      - DEMO_USERNAME=${DEMO_USERNAME:-}
+      - DEMO_PASSWORD=${DEMO_PASSWORD:-}
+      - AUTH_SECRET=${AUTH_SECRET:-}
+      - SURVEY_ADMIN_KEY=${SURVEY_ADMIN_KEY:-}
+      - PUBLIC_BASE_URL=${PUBLIC_BASE_URL:-https://prototype.transportlab.app/vesdi-dashboard}
+      - ORS_BASE_URL=${ORS_BASE_URL:-https://ors.transportbeat.nl/ors}
+      - ORS_API_KEY=${ORS_API_KEY:-}
+    volumes:
+      - vesdi-demo-data:/srv/vesdi/demo-data   # CBS demo data (confidential), uploaded once
+      - vesdi-survey:/srv/vesdi/survey         # answers, invites, recipient list <- back up
+      - vesdi-routes:/srv/vesdi/routes         # precomputed route trajectories
+    expose:
+      - "3000"
+    networks:
+      default:
+      coolify:
+        aliases:
+          - vesdi-dashboard
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/vesdi-dashboard/api/auth/status').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  vesdi-demo-data:
+  vesdi-survey:
+  vesdi-routes:
+
+networks:
+  coolify:
+    external: true

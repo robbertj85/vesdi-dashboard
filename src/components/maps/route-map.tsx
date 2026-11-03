@@ -16,6 +16,7 @@ import {
   type Centroid,
   type GeoKeyPairAgg,
 } from '@/lib/route-pairs';
+import { withBase } from '@/lib/base-path';
 
 interface RouteSegment {
   coordinates: [number, number][];
@@ -66,7 +67,7 @@ const BATCH_SIZE = 500;
  */
 async function fetchRoutesBatch(pairs: { from: Centroid; to: Centroid }[]): Promise<([number, number][] | null)[]> {
   try {
-    const res = await fetch(`/api/ors?profile=${ORS_PROFILE}`, {
+    const res = await fetch(withBase(`/api/ors?profile=${ORS_PROFILE}`), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -86,7 +87,7 @@ async function fetchRoutesBatch(pairs: { from: Centroid; to: Centroid }[]): Prom
 async function loadCentroids(): Promise<Record<string, Centroid>> {
   const get = async <T,>(url: string): Promise<T | null> => {
     try {
-      const res = await fetch(url);
+      const res = await fetch(withBase(url));
       return res.ok ? ((await res.json()) as T) : null;
     } catch {
       return null;

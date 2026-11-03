@@ -7,6 +7,7 @@ import {
   getAuthConfig,
   safeNextPath,
 } from '@/lib/auth';
+import { COOKIE_PATH } from '@/lib/app-url';
 
 export async function POST(request: NextRequest) {
   if (!getAuthConfig()) {
@@ -42,7 +43,7 @@ export async function POST(request: NextRequest) {
     httpOnly: true,
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
-    path: '/',
+    path: COOKIE_PATH,
     maxAge: SESSION_MAX_AGE_S,
   });
   return res;

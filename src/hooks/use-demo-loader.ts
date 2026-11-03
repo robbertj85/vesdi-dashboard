@@ -3,6 +3,7 @@
 import { useCallback, useState } from 'react';
 import { useVesdiStore } from '@/lib/store';
 import { generateDummyData } from '@/lib/anpr-generate-dummy';
+import { withBase } from '@/lib/base-path';
 
 interface Manifest {
   municipality: string;
@@ -23,7 +24,7 @@ export function useDemoLoader() {
   const loadDemo = useCallback(async (): Promise<boolean> => {
     setError(null);
     try {
-      const res = await fetch('/api/demo', { cache: 'no-store' });
+      const res = await fetch(withBase('/api/demo'), { cache: 'no-store' });
       if (!res.ok) throw new Error(`Manifest niet beschikbaar (${res.status})`);
       const manifest: Manifest = await res.json();
       if (manifest.files.length === 0) {
@@ -34,7 +35,7 @@ export function useDemoLoader() {
       let done = 0;
       const files = await Promise.all(
         manifest.files.map(async ({ name }) => {
-          const r = await fetch(`/api/demo/${encodeURIComponent(name)}`, { cache: 'no-store' });
+          const r = await fetch(withBase(`/api/demo/${encodeURIComponent(name)}`), { cache: 'no-store' });
           if (!r.ok) throw new Error(`Download mislukt: ${name} (${r.status})`);
           const blob = await r.blob();
           setDownloading({ done: ++done, total: manifest.files.length });

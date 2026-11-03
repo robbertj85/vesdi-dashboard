@@ -21,6 +21,7 @@ import {
   type Score,
   type StoredResponse,
 } from '@/lib/survey';
+import { withBase } from '@/lib/base-path';
 
 const inputClass =
   'w-full h-10 rounded-lg border border-dmi-primary/20 bg-white px-3 text-sm outline-none focus:border-dmi-primary focus:ring-2 focus:ring-dmi-primary/15';
@@ -50,7 +51,7 @@ export default function EnquetePage() {
   // Personal invite link? Then identity is known and earlier answers can be edited.
   useEffect(() => {
     let cancelled = false;
-    fetch('/api/survey', { cache: 'no-store' })
+    fetch(withBase('/api/survey'), { cache: 'no-store' })
       .then((r) => (r.ok ? r.json() : null))
       .then((data: { invite: InviteInfo | null; previous: StoredResponse | null } | null) => {
         if (cancelled || !data) return;
@@ -89,7 +90,7 @@ export default function EnquetePage() {
     setSending(true);
     setError(null);
     try {
-      const res = await fetch('/api/survey', {
+      const res = await fetch(withBase('/api/survey'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(effective),

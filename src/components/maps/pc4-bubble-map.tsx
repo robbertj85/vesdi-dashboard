@@ -5,6 +5,7 @@ import { useMemo, useEffect, useState } from 'react';
 import { CircleMarker, Tooltip } from 'react-leaflet';
 import { DynamicMap } from './dynamic-map';
 import { Card } from '@/components/ui/card';
+import { withBase } from '@/lib/base-path';
 
 interface PC4BubbleData {
   pc4: string;
@@ -48,7 +49,7 @@ export function PC4BubbleMap({
   useEffect(() => {
     let cancelled = false;
     const file = level === 'PC6' ? '/geo/pc6-centroids.json' : '/geo/pc4-centroids.json';
-    fetch(file)
+    fetch(withBase(file))
       .then((res) => res.json())
       .then((raw) => {
         if (cancelled) return;

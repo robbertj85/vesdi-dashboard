@@ -9,6 +9,7 @@ import { CHOROPLETH_TEAL } from '@/lib/colors';
 import { Card } from '@/components/ui/card';
 import type { Feature, Geometry } from 'geojson';
 import type { Layer, PathOptions } from 'leaflet';
+import { withBase } from '@/lib/base-path';
 
 interface PC4ChoroplethData {
   pc4: string;
@@ -29,7 +30,7 @@ export function PC4Choropleth({
   data,
   height = 300,
 }: PC4ChoroplethProps) {
-  const { data: geojson, loading } = useGeoJSON('/geo/pc4-netherlands.json');
+  const { data: geojson, loading } = useGeoJSON(withBase('/geo/pc4-netherlands.json'));
 
   const dataMap = useMemo(() => {
     const map = new Map<string, number>();

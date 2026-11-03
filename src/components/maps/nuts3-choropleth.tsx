@@ -9,6 +9,7 @@ import { Card } from '@/components/ui/card';
 import type { Nuts3Data } from '@/lib/types';
 import type { Feature, Geometry } from 'geojson';
 import type { Layer, PathOptions } from 'leaflet';
+import { withBase } from '@/lib/base-path';
 
 interface Nuts3ChoroplethProps {
   data: Nuts3Data[];
@@ -35,7 +36,7 @@ export function Nuts3Choropleth({
   center = [52.15, 5.4],
   zoom = 6,
 }: Nuts3ChoroplethProps) {
-  const { data: geojson, loading } = useGeoJSON('/geo/nuts3-europe.json');
+  const { data: geojson, loading } = useGeoJSON(withBase('/geo/nuts3-europe.json'));
   // Skip the palette's lightest step: it is too close to the "no data" grey
   const classes = (colorScale === 'teal' ? CHOROPLETH_TEAL : CHOROPLETH_MAUVE).slice(1);
 

@@ -1,0 +1,25 @@
+# Never send data or secrets into the build context
+.git
+node_modules
+.next
+tsconfig.tsbuildinfo
+**/.DS_Store
+*.log
+.env*
+.vercel
+demo-data
+data
+Utrecht
+Amsterdam
+Almere
+Den Haag
+Rotterdam
+Zwolle
+screenshots
+routing
+*.pdf
+*.pbit
+VESDI_lookup*.xlsx
+ontvangers*.csv
+!scripts/ontvangers.voorbeeld.csv
+AGENTS.md

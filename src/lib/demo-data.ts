@@ -24,7 +24,8 @@ export async function listDemoFiles(): Promise<DemoFileInfo[]> {
   }
   const files: DemoFileInfo[] = [];
   for (const name of names.sort()) {
-    if (!ALLOWED_EXT.test(name)) continue;
+    // Skip hidden files (e.g. macOS "._name.csv" companions from a tar upload)
+    if (name.startsWith('.') || !ALLOWED_EXT.test(name)) continue;
     const s = await stat(/*turbopackIgnore: true*/ path.join(dir, name));
     if (s.isFile()) files.push({ name, size: s.size });
   }

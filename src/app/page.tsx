@@ -5,6 +5,7 @@ import { FileText, Table, Image, BookOpen, ExternalLink, Camera, LogOut } from '
 import { DemoCard } from '@/components/upload/demo-card';
 import { InfoTip } from '@/components/ui/info-tip';
 import { SECTION_TOOLTIPS } from '@/lib/descriptions';
+import { withBase } from '@/lib/base-path';
 
 const FILE_TYPES = [
   {
@@ -65,7 +66,7 @@ export default function UploadPage() {
       <header className="border-b border-dmi-primary/10 bg-white/60 backdrop-blur-sm">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center gap-4">
           <img
-            src="/images/dmi-logo.svg"
+            src={withBase('/images/dmi-logo.svg')}
             alt="DMI Ecosysteem"
             className="h-10 w-auto"
           />
@@ -73,7 +74,7 @@ export default function UploadPage() {
           <span className="text-sm font-condensed font-semibold text-dmi-primary tracking-wide uppercase">
             VESDI Dashboard
           </span>
-          <form action="/api/auth/logout" method="post" className="ml-auto">
+          <form action={withBase('/api/auth/logout')} method="post" className="ml-auto">
             <button
               type="submit"
               title={SECTION_TOOLTIPS.logout}

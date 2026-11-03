@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SESSION_COOKIE, verifySessionToken } from '@/lib/auth';
+import { BASE_PATH } from '@/lib/base-path';
 import {
   checkAdminKey,
   createInvite,
@@ -15,7 +16,7 @@ export const dynamic = 'force-dynamic';
 
 /** Links must point at the public site, also when the app runs behind a proxy */
 function publicOrigin(request: NextRequest): string {
-  return (process.env.PUBLIC_BASE_URL || request.nextUrl.origin).replace(/\/$/, '');
+  return (process.env.PUBLIC_BASE_URL || `${request.nextUrl.origin}${BASE_PATH}`).replace(/\/$/, '');
 }
 
 async function guard(request: NextRequest): Promise<NextResponse | null> {

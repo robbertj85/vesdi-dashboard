@@ -38,6 +38,7 @@ import { useVesdiStore } from '@/lib/store';
 import { InfoTip } from '@/components/ui/info-tip';
 import { SECTION_TOOLTIPS } from '@/lib/descriptions';
 import { useTour } from '@/components/tour/tour-provider';
+import { withBase } from '@/lib/base-path';
 
 const GENERAL_NAV_ITEMS = [
   { href: '/dashboard/voorblad', icon: Home, label: 'Voorblad', desc: 'Titelpagina en samenvatting', color: DMI_COLORS.orange },
@@ -144,7 +145,7 @@ export function DashboardSidebar() {
       {/* DMI logo */}
       <div className={cn('flex items-center mb-2', expanded ? 'px-3' : 'justify-center')}>
         <img
-          src="/images/dmi-logo-diap.svg"
+          src={withBase('/images/dmi-logo-diap.svg')}
           alt="DMI Ecosysteem"
           className={cn(
             'object-contain transition-all duration-200',
@@ -232,7 +233,7 @@ export function DashboardSidebar() {
 
       {/* Logout + collapse, side by side when expanded */}
       <div className={cn('flex', expanded ? 'px-2 gap-1' : 'flex-col items-center')}>
-        <form action="/api/auth/logout" method="post" className={cn(expanded && 'flex-1')}>
+        <form action={withBase('/api/auth/logout')} method="post" className={cn(expanded && 'flex-1')}>
           <Tooltip>
             <TooltipTrigger asChild>
               <button

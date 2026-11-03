@@ -15,7 +15,9 @@ import { encodePolyline, routeCacheKey, type Centroid } from './route-pairs';
  */
 
 // Read lazily: the precompute script loads .env.local after imports are evaluated
-const orsBaseUrl = () => process.env.NEXT_PUBLIC_ORS_BASE_URL || 'https://ors.transportbeat.nl/ors';
+// ORS_* are runtime settings (Coolify); NEXT_PUBLIC_* would be frozen at build time
+const orsBaseUrl = () =>
+  process.env.ORS_BASE_URL || process.env.NEXT_PUBLIC_ORS_BASE_URL || 'https://ors.transportbeat.nl/ors';
 
 // Progressive snap radii: start precise, widen on "no routable point"
 const SNAP_RADII = [400, 2000, 5000, 10000, 25000, 50000];
@@ -33,7 +35,7 @@ function cacheFile(): string {
 
 function orsHeaders(): Record<string, string> {
   const h: Record<string, string> = { 'Content-Type': 'application/json' };
-  const key = process.env.NEXT_PUBLIC_ORS_API_KEY;
+  const key = process.env.ORS_API_KEY || process.env.NEXT_PUBLIC_ORS_API_KEY;
   if (key) h['X-API-Key'] = key;
   return h;
 }

@@ -7,6 +7,7 @@ import { AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useVesdiStore } from '@/lib/store';
 import { useDemoLoader } from '@/hooks/use-demo-loader';
+import { withBase } from '@/lib/base-path';
 
 /**
  * Landing page after login: loads the Utrecht demo dataset (unless data is
@@ -53,7 +54,7 @@ function DemoLoader() {
   return (
     <div className="min-h-screen bg-dmi-bg flex items-center justify-center p-6">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-lg shadow-dmi-primary/5 p-8 text-center">
-        <img src="/images/dmi-logo.svg" alt="DMI Ecosysteem" className="h-10 w-auto mx-auto mb-6" />
+        <img src={withBase('/images/dmi-logo.svg')} alt="DMI Ecosysteem" className="h-10 w-auto mx-auto mb-6" />
         {error ? (
           <div className="space-y-4">
             <AlertCircle className="w-10 h-10 mx-auto text-dmi-red" />

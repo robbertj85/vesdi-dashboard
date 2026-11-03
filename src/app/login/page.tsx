@@ -6,6 +6,7 @@ import { ArrowRight, Link2, Loader2, LogIn, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { InfoTip } from '@/components/ui/info-tip';
 import { SECTION_TOOLTIPS } from '@/lib/descriptions';
+import { withBase } from '@/lib/base-path';
 
 const inputClass =
   'w-full h-10 rounded-lg border border-dmi-primary/20 bg-white px-3 text-sm outline-none focus:border-dmi-primary focus:ring-2 focus:ring-dmi-primary/15';
@@ -28,7 +29,7 @@ function InviteLinkForm() {
         e.preventDefault();
         const code = inviteCodeFrom(value);
         if (!code) return setError('Dit lijkt geen geldige uitnodigingslink.');
-        window.location.assign(`/uitnodiging/${encodeURIComponent(code)}`);
+        window.location.assign(withBase(`/uitnodiging/${encodeURIComponent(code)}`));
       }}
       className="space-y-2"
     >
@@ -64,7 +65,7 @@ function PasswordForm({ next }: { next?: string }) {
     setBusy(true);
     setError(null);
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch(withBase('/api/auth/login'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password, next }),
@@ -76,7 +77,7 @@ function PasswordForm({ next }: { next?: string }) {
         return;
       }
       // Full navigation so the new session cookie is sent with every request
-      window.location.assign(data.next || '/demo');
+      window.location.assign(withBase(data.next || '/demo'));
     } catch {
       setError('Geen verbinding met de server');
       setBusy(false);
@@ -113,7 +114,7 @@ function LoginContent() {
   const [sharedLogin, setSharedLogin] = useState<boolean | null>(null);
 
   useEffect(() => {
-    fetch('/api/auth/status', { cache: 'no-store' })
+    fetch(withBase('/api/auth/status'), { cache: 'no-store' })
       .then((r) => r.json())
       .then((d: { sharedLogin: boolean }) => setSharedLogin(d.sharedLogin))
       .catch(() => setSharedLogin(true));
@@ -145,7 +146,7 @@ function LoginContent() {
             <LogIn className="w-4 h-4 text-dmi-primary" />
             <h2 className="font-condensed font-bold text-dmi-primary">Inloggen met wachtwoord</h2>
           </div>
-          <p className="text-xs text-dmi-text/60">Voor beheerders en demo-bezoekers zonder persoonlijke link.</p>
+          <p className="text-xs text-dmi-text/60">Alleen voor beheerders. Deelnemers aan de enquête gebruiken hun persoonlijke link.</p>
           <PasswordForm next={next} />
         </section>
       )}
@@ -158,7 +159,7 @@ export default function LoginPage() {
     <div className="min-h-screen bg-dmi-bg flex flex-col items-center justify-center p-6">
       <div className="w-full max-w-sm">
         <div className="flex items-center justify-center gap-4 mb-8">
-          <img src="/images/dmi-logo.svg" alt="DMI Ecosysteem" className="h-12 w-auto" />
+          <img src={withBase('/images/dmi-logo.svg')} alt="DMI Ecosysteem" className="h-12 w-auto" />
           <div className="h-8 w-px bg-dmi-primary/15" />
           <span className="text-sm font-condensed font-semibold text-dmi-primary tracking-wide uppercase">
             VESDI Dashboard

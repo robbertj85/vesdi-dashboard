@@ -9,6 +9,7 @@ import { useTour } from '@/components/tour/tour-provider';
 import { anprTotalVisits } from '@/lib/anpr-aggregate';
 import { DMI_COLORS } from '@/lib/colors';
 import { formatLargeNumber, municipalityName } from '@/lib/format';
+import { withBase } from '@/lib/base-path';
 
 export default function VoorbladPage() {
   const municipality = useVesdiStore((s) => s.municipality);
@@ -56,7 +57,7 @@ export default function VoorbladPage() {
         <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-black/10" />
 
         <div className="relative z-10 p-8">
-          <img src="/images/dmi-logo-diap.svg" alt="DMI Ecosysteem" className="h-12 w-auto" />
+          <img src={withBase('/images/dmi-logo-diap.svg')} alt="DMI Ecosysteem" className="h-12 w-auto" />
         </div>
 
         <div className="relative z-10 p-8 space-y-3">

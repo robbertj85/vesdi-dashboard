@@ -18,6 +18,7 @@ import { SectionTitle } from '@/components/ui/info-tip';
 import { DMI_COLORS } from '@/lib/colors';
 import { SECTION_TOOLTIPS } from '@/lib/descriptions';
 import { SCALE, type SurveySummary } from '@/lib/survey';
+import { withBase } from '@/lib/base-path';
 
 const KEY_STORAGE = 'vesdi-survey-admin-key';
 
@@ -53,7 +54,7 @@ export default function EnqueteResultatenPage() {
 
   const api = useCallback(
     (url: string, init?: RequestInit) =>
-      fetch(url, { ...init, headers: { ...init?.headers, 'x-admin-key': key, 'Content-Type': 'application/json' }, cache: 'no-store' }),
+      fetch(withBase(url), { ...init, headers: { ...init?.headers, 'x-admin-key': key, 'Content-Type': 'application/json' }, cache: 'no-store' }),
     [key]
   );
 
