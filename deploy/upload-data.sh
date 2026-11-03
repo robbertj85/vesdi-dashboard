@@ -31,5 +31,5 @@ case "${1:-}" in
   ontvangers)
     [ -f data/survey/ontvangers.csv ] || { echo "data/survey/ontvangers.csv ontbreekt" >&2; exit 1; }
     send data/survey /srv/vesdi/survey ontvangers.csv ;;
-  *) sed -n '2,13p' "$0" >&2; exit 2 ;;
+  *) sed -n '2,10p' "$0" >&2; exit 2 ;;
 esac
